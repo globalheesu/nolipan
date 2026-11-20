@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>놀이판 — 링크 하나로 모이는 보드게임</title>
+<meta name="description" content="설치 없이 바로. 친구들과 각자 폰으로 함께하는 보드게임, 놀이판.">
+<meta property="og:title" content="놀이판 — 링크 하나로 모이는 보드게임">
+<meta property="og:description" content="설치 없이 바로. 친구들과 각자 폰으로 함께해요.">
+<meta property="og:image" content="assets/og-home.png">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#F2F4F6">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="shared/brand.css">
+<style>
+/* Layout idea: a calm product shell (neutral grays, white surfaces) where each game brings its own world as a cover image. */
+:root {
+  --bg: #F2F4F6; --surface: #FFFFFF; --ink: #191F28; --ink-2: #4E5968; --ink-3: #8B95A1; --line: #E5E8EB;
+  --blue: #2563D9; --orange: #E8761A; --red: #CF3838;
+  --font: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+html, body { overflow-x: hidden; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+a { color: inherit; }
+.wrap { width: min(1080px, 100%); margin: 0 auto; padding: 0 20px; }
+nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+nav .brand { margin: 0; font-size: 18px; opacity: 1; }
+nav .links { display: flex; gap: 6px; }
+nav .links a { text-decoration: none; font-weight: 600; font-size: 15px; color: var(--ink-2); padding: 8px 12px; border-radius: 10px; }
+nav .links a:hover { background: rgba(0,0,0,.04); color: var(--ink); }
+
+.hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 40px; align-items: center; padding: 48px 0 56px; }
+@media (max-width: 860px) { .hero { grid-template-columns: 1fr; padding: 24px 0 40px; gap: 28px; } .stage { max-width: 300px; } }
+h1 { font-size: clamp(38px, 6.4vw, 64px); line-height: 1.12; letter-spacing: -0.045em; font-weight: 800; margin: 0 0 18px; text-wrap: balance; }
+.sub { font-size: clamp(17px, 2.2vw, 20px); color: var(--ink-2); margin: 0 0 28px; max-width: 30em; letter-spacing: -0.01em; }
+.join { background: var(--surface); border-radius: 20px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06); max-width: 440px; }
+.join label { display: block; font-weight: 700; font-size: 15px; margin-bottom: 10px; }
+.join .row { display: flex; gap: 8px; }
+.join input { flex: 1; min-width: 0; font: inherit; font-size: 22px; font-weight: 800; letter-spacing: .3em; text-align: center; border: 0; background: var(--bg); border-radius: 12px; height: 56px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.join input::placeholder { color: #C4CBD3; letter-spacing: .3em; }
+.join input:focus-visible { outline: 2px solid var(--blue); }
+.join button { font: inherit; font-weight: 700; border: 0; border-radius: 12px; height: 56px; padding: 0 22px; background: var(--ink); color: #fff; cursor: pointer; }
+.join button:active { transform: scale(.98); }
+.join .msg { margin: 10px 0 0; font-size: 14px; color: var(--red); min-height: 0; }
+.join .msg:empty { display: none; }
+.join .hint { margin: 10px 0 0; font-size: 14px; color: var(--ink-3); }
+
+.stage { position: relative; aspect-ratio: 1 / 1; max-width: 460px; width: 100%; justify-self: center; }
+.stage .sheet { position: absolute; border-radius: 22px; box-shadow: 0 24px 48px rgba(25,31,40,.18); overflow: hidden; }
+.stage .s1 { inset: 4% 22% 22% 2%; background: #2E5B49; transform: rotate(-6deg); }
+.stage .s2 { inset: 30% 0 0 30%; background: #23223D; transform: rotate(5deg); }
+.stage svg { width: 100%; height: 100%; display: block; }
+@media (prefers-reduced-motion: no-preference) {
+  .stage .s1 { animation: inL .9s cubic-bezier(.2,.8,.2,1) both; }
+  .stage .s2 { animation: inR .9s .12s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes inL { from { transform: translate(-30px, 20px) rotate(-14deg); opacity: 0; } }
+  @keyframes inR { from { transform: translate(30px, 30px) rotate(14deg); opacity: 0; } }
+}
+
+section.games { padding: 8px 0 56px; }
+h2 { font-size: clamp(26px, 3.6vw, 34px); letter-spacing: -0.035em; font-weight: 800; margin: 0 0 20px; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+.game { display: grid; background: var(--surface); border-radius: 24px; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 1px 2px rgba(0,0,0,.04); transition: transform .2s ease, box-shadow .2s ease; }
+.game:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(25,31,40,.12); }
+.game:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.cover { aspect-ratio: 16 / 10; }
+.cover svg { width: 100%; height: 100%; display: block; }
+.body { padding: 22px 24px 24px; display: grid; gap: 8px; }
+.body h3 { margin: 0; font-size: 24px; letter-spacing: -0.035em; font-weight: 800; }
+.body p { margin: 0; color: var(--ink-2); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.chips span { font-size: 13px; font-weight: 600; color: var(--ink-2); background: var(--bg); border-radius: 999px; padding: 4px 10px; }
+.cta { margin-top: 10px; font-weight: 700; color: var(--blue); }
+
+section.how { padding: 8px 0 64px; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; counter-reset: s; }
+@media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
+.steps li { counter-increment: s; background: var(--surface); border-radius: 20px; padding: 22px; }
+.steps li::before { content: counter(s); display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: var(--ink); color: #fff; font-weight: 800; margin-bottom: 14px; }
+.steps b { display: block; font-size: 18px; letter-spacing: -0.02em; margin-bottom: 4px; }
+.steps span { color: var(--ink-2); font-size: 15px; }
+
+footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--ink-3); font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+footer a { text-decoration: none; color: var(--ink-2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav aria-label="주요 메뉴">
+    <a class="brand" href="./" aria-label="놀이판 홈"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>놀이판</a>
+    <div class="links"><a href="#games">게임</a><a href="#how">함께하는 법</a></div>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1>링크 하나로<br>모이는 보드게임</h1>
+      <p class="sub">설치도 가입도 없어요. 방을 만들고 링크를 보내면, 친구들이 각자 폰으로 들어와요.</p>
+      <form class="join" id="join" novalidate>
+        <label for="code">초대받은 방 코드</label>
+        <div class="row"><input id="code" name="code" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="0000" autocomplete="off" aria-describedby="join-hint"><button type="submit">참가하기</button></div>
+        <p class="msg" id="join-msg" role="alert"></p>
+        <p class="hint" id="join-hint">코드는 방을 만든 친구 화면에 있어요.</p>
+      </form>
+    </div>
+    <div class="stage" aria-hidden="true">
+      <div class="sheet s1">
+        <svg viewBox="0 0 300 300"><defs><pattern id="mg" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#44735F"/></pattern></defs><rect width="300" height="300" fill="url(#mg)"/>
+          <rect x="40" y="40" width="220" height="220" rx="8" fill="#E8EEE3"/>
+          <g style="mix-blend-mode:multiply"><path d="M78 222 V160 H130 V100 H190" fill="none" stroke="#2563D9" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/><path d="M222 222 V170 H190 V100" fill="none" stroke="#E8761A" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/></g>
+          <circle cx="190" cy="100" r="24" fill="none" stroke="#1F2A44" stroke-width="4"/><text x="150" y="78" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="30" fill="#1F2A44" letter-spacing="-1">OVERLAP</text></svg>
+      </div>
+      <div class="sheet s2">
+        <svg viewBox="0 0 300 300"><rect width="300" height="300" fill="#23223D"/><rect x="45" y="45" width="210" height="210" rx="8" fill="#1E1C33"/>
+          <g fill="#ECEBF2"><rect x="51" y="51" width="64" height="64" rx="4"/><rect x="118" y="51" width="64" height="64" rx="4"/><rect x="185" y="51" width="64" height="64" rx="4"/><rect x="51" y="118" width="64" height="64" rx="4"/><rect x="118" y="118" width="64" height="64" rx="4"/><rect x="185" y="118" width="64" height="64" rx="4"/><rect x="51" y="185" width="64" height="64" rx="4"/><rect x="118" y="185" width="64" height="64" rx="4"/></g>
+          <rect x="185" y="185" width="64" height="64" rx="4" fill="#F6E3E3" stroke="#CF3838" stroke-width="4"/>
+          <path d="M83 83 H150 V150 H217 V217" fill="none" stroke="#CF3838" stroke-width="7" stroke-dasharray="10 8" stroke-linecap="round"/>
+          <text x="243" y="242" text-anchor="end" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="30" fill="#CF3838">1</text>
+          <rect x="128" y="226" width="44" height="12" fill="#F2C33D" transform="rotate(-4 150 232)"/><text x="150" y="238" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="26" fill="#1E1C33">0</text></svg>
+      </div>
+    </div>
+  </header>
+
+  <section class="games" id="games" aria-labelledby="games-title">
+    <h2 id="games-title">지금 할 수 있는 게임</h2>
+    <div class="grid">
+      <a class="game" href="overlap/">
+        <div class="cover" style="background:#E8EEE3">
+          <svg viewBox="0 0 320 200" aria-hidden="true"><defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#1F2A44" stroke-opacity=".1"/></pattern></defs><rect width="320" height="200" fill="url(#g)"/>
+            <g style="mix-blend-mode:multiply"><rect x="44" y="30" width="140" height="140" rx="8" fill="#2563D9" fill-opacity=".12" stroke="#2563D9" stroke-width="2" transform="rotate(-6 114 100)"/><rect x="136" y="28" width="140" height="140" rx="8" fill="#E8761A" fill-opacity=".12" stroke="#E8761A" stroke-width="2" transform="rotate(5 206 98)"/>
+            <path d="M72 150 V112 H112 V74 H168" fill="none" stroke="#2563D9" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M248 150 V112 H208 V74 H168" fill="none" stroke="#E8761A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></g>
+            <circle cx="168" cy="74" r="17" fill="none" stroke="#1F2A44" stroke-width="3"/></svg>
+        </div>
+        <div class="body">
+          <h3>OVERLAP</h3>
+          <p>몰래 그린 길을 한꺼번에 겹쳐요. 부딪힌 칸은 먼저 도착한 사람의 것.</p>
+          <div class="chips"><span>2–6명</span><span>15–20분</span><span>온라인</span><span>컴퓨터 대전</span></div>
+          <span class="cta">플레이하기</span>
+        </div>
+      </a>
+      <a class="game" href="night/">
+        <div class="cover" style="background:#23223D">
+          <svg viewBox="0 0 320 200" aria-hidden="true"><rect x="80" y="22" width="160" height="156" rx="8" fill="#1E1C33"/>
+            <g fill="#ECEBF2"><rect x="85" y="27" width="48" height="47" rx="3"/><rect x="136" y="27" width="48" height="47" rx="3"/><rect x="187" y="27" width="48" height="47" rx="3"/><rect x="85" y="77" width="48" height="47" rx="3"/><rect x="136" y="77" width="48" height="47" rx="3"/><rect x="187" y="77" width="48" height="47" rx="3"/><rect x="85" y="127" width="48" height="46" rx="3"/><rect x="136" y="127" width="48" height="46" rx="3"/></g>
+            <rect x="187" y="127" width="48" height="46" rx="3" fill="#F6E3E3" stroke="#CF3838" stroke-width="3"/>
+            <path d="M109 50 H160 V100 H211 V150" fill="none" stroke="#CF3838" stroke-width="5" stroke-dasharray="7 6" stroke-linecap="round"/></svg>
+        </div>
+        <div class="body">
+          <h3>밤의 기록</h3>
+          <p>미술관 금고가 털렸어요. 범인은 기록을 고쳤고, 지금 이 자리에 있어요.</p>
+          <div class="chips"><span>3–6명</span><span>한 판 10분</span><span>온라인</span><span>파티 추리</span></div>
+          <span class="cta">플레이하기</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="how" id="how" aria-labelledby="how-title">
+    <h2 id="how-title">함께하는 법</h2>
+    <ol class="steps">
+      <li><b>방 만들기</b><span>게임을 고르고 ‘온라인’에서 방을 만들어요.</span></li>
+      <li><b>링크 보내기</b><span>초대 링크를 단톡방에 보내요. 코드만 불러 줘도 돼요.</span></li>
+      <li><b>각자 폰으로 참가</b><span>친구들은 링크를 열고 닉네임만 정하면 들어와요.</span></li>
+    </ol>
+  </section>
+
+  <footer>
+    <span>© 2026 놀이판</span>
+    <span><a href="overlap/">OVERLAP</a> · <a href="night/">밤의 기록</a></span>
+  </footer>
+</div>
+<script>
+(function () {
+  var f = document.getElementById('join'), input = document.getElementById('code'), msg = document.getElementById('join-msg');
+  input.addEventListener('input', function () { input.value = input.value.replace(/\D/g, '').slice(0, 4); msg.textContent = ''; });
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var c = input.value.replace(/\D/g, '');
+    if (c.length !== 4) { msg.textContent = '4자리 코드를 입력하세요.'; input.focus(); return; }
+    var n = +c;
+    if (n >= 1000 && n <= 4999) location.href = 'overlap/?room=' + c;
+    else if (n >= 5000 && n <= 9999) location.href = 'night/?room=' + c;
+    else { msg.textContent = '없는 방 코드예요. 다시 확인해 주세요.'; input.focus(); }
+  });
+})();
+</script>
+</body>
+</html>
