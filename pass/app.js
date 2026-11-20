@@ -61,7 +61,8 @@
         h('li', null, h('div', null, h('b', null, '폰을 테이블에 붙여요'), h('span', null, '맞닿은 두 화면을 가로질러 손가락으로 쓸면 이어져요.'))),
         h('li', null, h('div', null, h('b', null, '폭탄을 튕겨 넘겨요'), h('span', null, '내 화면에서 터지면 하트를 잃어요. 마지막까지 남으면 승리.')))),
       h('div', { class: 'field' }, h('label', { for: 'nick' }, '닉네임'), nick),
-      prefill ? null : h('div', { class: 'row' }, create),
+      prefill ? null : h('div', { class: 'row' }, create, h('button', { class: 'btn', type: 'button', onclick: startSolo }, '혼자 연습하기')),
+      prefill ? null : h('p', { class: 'fine' }, '혼자 연습하기는 내 화면 왼쪽·오른쪽·위에 컴퓨터 3명이 붙어 있다고 치고 해요.'),
       prefill ? null : h('hr', { class: 'divider' }),
       h('div', { class: 'field' }, h('label', { for: 'code' }, prefill ? '초대받은 방' : '방 코드로 참가'), h('div', { class: 'row' }, code, join)),
       msg,
@@ -73,7 +74,7 @@
   // ============================================================
   // ROOM
   // ============================================================
-  function leaveRoom() { if (ON.room) { try { ON.room.leave(); } catch (e) { } } ON.room = null; ON.isHost = false; ON.st = null; ON.H = null; ON.bomb = null; stopHostLoop(); }
+  function leaveRoom() { if (ON.room) { try { ON.room.leave(); } catch (e) { } } ON.room = null; ON.isHost = false; ON.solo = false; ON.st = null; ON.H = null; ON.bomb = null; stopHostLoop(); }
   function hostId() { return ON.isHost ? ON.room.me : ON.room.hostId; }
   function toHost(m) { if (ON.room) ON.room.send(hostId(), m); }
   function afterJoin() {
@@ -102,6 +103,34 @@
   }
 
   // ============================================================
+  // SOLO PRACTICE (local host + three computer neighbours)
+  // ============================================================
+  function startSolo() {
+    leaveRoom();
+    ON.solo = true; ON.isHost = true;
+    ON.room = { me: 'me', code: '연습', isHost: true, hostId: 'me', leave() { },
+      send(to, d) { if (d && d.k && d.k.startsWith('h:')) hostHandle(d, 'me'); else clientHandle(d); },
+      broadcast(d) { clientHandle(d); } };
+    const w = Math.round(window.innerWidth), hh = Math.round(window.innerHeight);
+    const bots = [['도도', 'left', 'right'], ['모모', 'right', 'left'], ['쿠키', 'top', 'bottom']];
+    ON.H = { phase: 'link', players: [{ peer: 'me', name: cleanName(S.nick, '나'), color: COLORS[0], w, h: hh, alive: true, hearts: 3 }].concat(bots.map((b, i) => ({ peer: 'bot' + i, name: b[0], color: COLORS[i + 1], w, h: hh, alive: true, hearts: 3, bot: true }))),
+      links: bots.map((b, i) => ({ a: 0, ea: b[1], b: i + 1, eb: b[2], off: 0 })), exits: [], enters: [], bomb: null, fuseTotal: 11, winner: null, round: 0 };
+    stopHostLoop(); hostTimer = setInterval(hostTick, 16);
+    hostStartGame();
+  }
+  function botThink(b, dt) {
+    const H = ON.H;
+    if (b.lastP !== b.p) { b.lastP = b.p; b.wait = Math.min(0.4 + Math.random() * 0.9 + (Math.random() < 0.12 ? 1 : 0), Math.max(0.25, b.fuse * 0.6)); }
+    if (b.p === 0) return;
+    b.wait -= dt; if (b.wait > 0 || Math.hypot(b.vx, b.vy) > 400) return;
+    const l = H.links.find(x => x.b === b.p); if (!l) return; const P = H.players[b.p];
+    const t = 0.2 + Math.random() * 0.6; let tx, ty;
+    if (l.eb === 'right') { tx = P.w + 60; ty = P.h * t; } else if (l.eb === 'left') { tx = -60; ty = P.h * t; } else if (l.eb === 'bottom') { tx = P.w * t; ty = P.h + 60; } else { tx = P.w * t; ty = -60; }
+    const dx = tx - b.x, dy = ty - b.y, d = Math.hypot(dx, dy) || 1; const sp = Math.max(d * 1.25 + 300, 1300 + Math.random() * 900);
+    b.vx = dx / d * sp; b.vy = dy / d * sp; b.wait = 0.9; hostSendBomb(true);
+  }
+
+  // ============================================================
   // HOST (authoritative simulation)
   // ============================================================
   let hostTimer = null, lastBombSend = 0;
@@ -122,7 +151,7 @@
     const H = ON.H;
     if (d.k === 'h:hello') { if (H) ON.room.send(from, hostPublic()); return; }
     if (!H) return; const p = pidx(from); if (p < 0) return; const now = Date.now();
-    if (d.k === 'h:dims') { H.players[p].w = Math.max(200, Math.min(2000, d.w | 0)); H.players[p].h = Math.max(300, Math.min(3000, d.h | 0)); hostBroadcast(); return; }
+    if (d.k === 'h:dims') { H.players[p].w = Math.max(200, Math.min(2000, d.w | 0)); H.players[p].h = Math.max(300, Math.min(3000, d.h | 0)); if (ON.solo) H.players.forEach(q => { q.w = H.players[0].w; q.h = H.players[0].h; }); hostBroadcast(); return; }
     if (d.k === 'h:exit' && H.phase === 'link' && OPP[d.edge]) { H.exits.push({ p, edge: d.edge, pos: +d.pos || 0, t: now }); hostPair(); return; }
     if (d.k === 'h:enter' && H.phase === 'link' && OPP[d.edge]) { H.enters.push({ p, edge: d.edge, pos: +d.pos || 0, t: now }); hostPair(); return; }
     if (d.k === 'h:reset' && from === ON.room.me && H.phase === 'link') { H.links = []; hostBroadcast(); return; }
@@ -170,7 +199,7 @@
   }
   function hostTick() {
     const H = ON.H; if (!H || H.phase !== 'play' || !H.bomb) return;
-    const b = H.bomb; const dt = 0.016; const P = H.players[b.p];
+    const b = H.bomb; const dt = 0.016; if (ON.solo) botThink(b, dt); const P = H.players[b.p];
     const k = Math.exp(-FRICTION * dt); b.vx *= k; b.vy *= k; if (Math.hypot(b.vx, b.vy) < 8) { b.vx = 0; b.vy = 0; }
     b.x += b.vx * dt; b.y += b.vy * dt;
     // horizontal edges
@@ -190,6 +219,7 @@
     if (P.alive) { P.hearts--; hurt = true; if (P.hearts <= 0) P.alive = false; }
     H.bomb = null; ON.room.broadcast({ k: 'boom', p, hurt });
     const alive = H.players.filter(x => x.alive);
+    if (ON.solo && !H.players[0].alive) { H.phase = 'over'; H.winner = H.players.indexOf(alive.slice().sort((x, y) => y.hearts - x.hearts)[0]); setTimeout(hostBroadcast, 900); return; }
     if (alive.length <= 1) { H.phase = 'over'; H.winner = alive.length ? H.players.indexOf(alive[0]) : null; setTimeout(hostBroadcast, 900); return; }
     H.fuseTotal = Math.max(4.5, H.fuseTotal * 0.88); H.round++;
     hostBroadcast(); setTimeout(hostSpawn, 2000);
@@ -235,8 +265,8 @@
       banner.append(h('h3', null, mine ? '연결됐어요' : '옆 폰과 연결하세요'), h('p', null, mine ? '다른 폰도 모두 이어지면 시작할 수 있어요.' : '폰을 맞대 놓고, 두 화면을 가로질러 손가락으로 한 번에 쓸어 주세요.'));
       if (ON.isHost) ctrl.append(h('button', { class: 'btn', type: 'button', onclick: () => toHost({ k: 'h:reset' }) }, '연결 초기화'), h('button', { class: 'btn btn-primary', type: 'button', disabled: !st.connected, onclick: () => toHost({ k: 'h:start' }) }, st.connected ? '시작하기' : `${countLinked(st)}/${st.players.length} 연결됨`));
     } else if (st.phase === 'over') {
-      const w = st.winner; banner.append(h('h3', null, w === me ? '살아남았어요!' : w != null ? `${st.players[w].name} 승리` : '모두 펑!'), h('p', null, '폰을 그대로 두면 바로 한 판 더 할 수 있어요.'));
-      if (ON.isHost) ctrl.append(h('button', { class: 'btn', type: 'button', onclick: () => toHost({ k: 'h:relink' }) }, '배치 바꾸기'), h('button', { class: 'btn btn-primary', type: 'button', onclick: () => toHost({ k: 'h:start' }) }, '한 판 더'));
+      const w = st.winner; banner.append(h('h3', null, w === me ? '살아남았어요!' : w != null ? `${st.players[w].name} 승리` : '모두 펑!'), h('p', null, ON.solo ? '한 판 더를 누르면 바로 다시 시작해요.' : '폰을 그대로 두면 바로 한 판 더 할 수 있어요.'));
+      if (ON.isHost) ctrl.append(ON.solo ? null : h('button', { class: 'btn', type: 'button', onclick: () => toHost({ k: 'h:relink' }) }, '배치 바꾸기'), h('button', { class: 'btn btn-primary', type: 'button', onclick: () => toHost({ k: 'h:start' }) }, '한 판 더'));
       ctrl.append(h('button', { class: 'btn', type: 'button', onclick: () => { history.replaceState(null, '', location.pathname); stage.classList.remove('on'); showTitle(); } }, '나가기'));
     } else if (st.phase === 'play' && !P.alive) {
       banner.append(h('h3', null, '탈락'), h('p', null, '폰은 그대로 두세요. 폭탄은 계속 지나가요.'));
@@ -308,7 +338,8 @@
       const s0 = Math.max(0, -off), s1 = Math.min(mylen, qlen - off); if (s1 <= s0) continue;
       ctx.strokeStyle = '#FFFDF5'; ctx.lineWidth = 14; line(edge, s0, s1);
       ctx.strokeStyle = Q.color; ctx.lineWidth = 8; ctx.setLineDash([14, 10]); line(edge, s0, s1); ctx.setLineDash([]);
-      ctx.fillStyle = Q.color; ctx.font = '800 13px ' + getComputedStyle(document.body).fontFamily; const mid = (s0 + s1) / 2; label(edge, mid, Q.name);
+      ctx.fillStyle = Q.color; ctx.font = '800 13px ' + getComputedStyle(document.body).fontFamily; const mid = (s0 + s1) / 2; label(edge, mid, st.phase === 'link' ? Q.name : Q.name + ' ' + (Q.alive ? '♥'.repeat(Q.hearts) : '탈락'));
+      if (st.phase === 'play' && ON.bomb && ON.bomb.p === q) { const f = Math.max(0, ON.bomb.f); ctx.save(); ctx.strokeStyle = f < 0.3 ? '#FF3B30' : '#16151A'; ctx.globalAlpha = 0.25 + 0.25 * Math.sin(now / (50 + 150 * f)); ctx.lineWidth = 40; line(edge, s0, s1); ctx.restore(); }
     }
     // link-phase hint arrows
     if (st.phase === 'link') { const t = (now / 900) % 1; ctx.fillStyle = 'rgba(22,21,26,.25)'; for (const e of ['left', 'right', 'top', 'bottom']) arrow(e, t); }
