@@ -38,11 +38,12 @@ nav .links a:hover { background: rgba(0,0,0,.04); color: var(--ink); }
 .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 40px; align-items: center; padding: 48px 0 56px; }
 @media (max-width: 860px) { .hero { grid-template-columns: 1fr; padding: 24px 0 40px; gap: 28px; } .stage { max-width: 300px; } }
 h1 { font-size: clamp(38px, 6.4vw, 64px); line-height: 1.12; letter-spacing: -0.045em; font-weight: 800; margin: 0 0 18px; text-wrap: balance; }
-.sub { font-size: clamp(17px, 2.2vw, 20px); color: var(--ink-2); margin: 0 0 28px; max-width: 30em; letter-spacing: -0.01em; }
-.join { background: var(--surface); border-radius: 20px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06); max-width: 440px; }
+.sub { overflow-wrap: anywhere; font-size: clamp(17px, 2.2vw, 20px); color: var(--ink-2); margin: 0 0 28px; max-width: 30em; letter-spacing: -0.01em; }
+.hero > * { min-width: 0; }
+.join { width: 100%; background: var(--surface); border-radius: 20px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06); max-width: 440px; }
 .join label { display: block; font-weight: 700; font-size: 15px; margin-bottom: 10px; }
 .join .row { display: flex; gap: 8px; }
-.join input { flex: 1; min-width: 0; font: inherit; font-size: 22px; font-weight: 800; letter-spacing: .3em; text-align: center; border: 0; background: var(--bg); border-radius: 12px; height: 56px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.join input { flex: 1 1 0; width: 0; min-width: 0; font: inherit; font-size: 22px; font-weight: 800; letter-spacing: .3em; text-align: center; border: 0; background: var(--bg); border-radius: 12px; height: 56px; color: var(--ink); font-variant-numeric: tabular-nums; }
 .join input::placeholder { color: #C4CBD3; letter-spacing: .3em; }
 .join input:focus-visible { outline: 2px solid var(--blue); }
 .join button { font: inherit; font-weight: 700; border: 0; border-radius: 12px; height: 56px; padding: 0 22px; background: var(--ink); color: #fff; cursor: pointer; }
