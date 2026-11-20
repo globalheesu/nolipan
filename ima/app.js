@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   const CODE_LO = 4000, CODE_HI = 6999;
-  const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+  const RANKS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'];
   const SUITS = ['♠', '♥', '♦', '♣'];
   const PROPS = {
     even: { label: '짝수?', f: v => v % 2 === 0 },
@@ -11,13 +11,13 @@
     prime: { label: '소수?', f: v => [2, 3, 5, 7, 11, 13].includes(v) },
     m4: { label: '4의 배수?', f: v => v % 4 === 0 },
     mid: { label: '5~8?', f: v => v >= 5 && v <= 8 },
-    sq: { label: 'A·4·9?', f: v => v === 1 || v === 4 || v === 9 },
+    sq: { label: '1·4·9?', f: v => v === 1 || v === 4 || v === 9 },
   };
   const hintOf = k => RANKS.filter((r, i) => PROPS[k].f(i + 1)).join(' ');
   const BOT_NAMES = ['도도', '모모', '쿠키', '보리'];
-  const PICK_MS = 40000, ANSWER_MS = 40000, REVEAL_MS = 45000, WIN = 5;
-  const SPEEDS = { slow: { label: '느긋하게', lo: 7000, hi: 14000 }, normal: { label: '보통', lo: 3500, hi: 7500 }, fast: { label: '빠르게', lo: 1600, hi: 4200 } };
-  const speed = () => SPEEDS[S.speed] || SPEEDS.slow;
+  const WIN = 5;
+  const SPEEDS = { slow: { label: '느긋하게', lo: 7000, hi: 14000, pick: 30000, answer: 25000, reveal: 20000 }, normal: { label: '보통', lo: 3500, hi: 7500, pick: 20000, answer: 15000, reveal: 12000 }, fast: { label: '빠르게', lo: 1600, hi: 4200, pick: 12000, answer: 10000, reveal: 7000 } };
+  const speed = () => SPEEDS[S.speed] || SPEEDS.fast;
 
   // ---------- helpers ----------
   function h(tag, attrs, ...kids) { const el = document.createElement(tag); if (attrs) for (const [k, v] of Object.entries(attrs)) { if (v == null || v === false) continue; if (k === 'class') el.className = v; else if (k === 'style') el.style.cssText = v; else if (k.startsWith('on')) el.addEventListener(k.slice(2), v); else if (k === 'html') el.innerHTML = v; else el.setAttribute(k, v === true ? '' : v); } for (const kid of kids.flat()) { if (kid == null || kid === false) continue; el.append(kid.nodeType ? kid : document.createTextNode(String(kid))); } return el; }
@@ -63,7 +63,7 @@
         h('li', null, h('div', null, h('b', null, '내 카드를 알아내요'), h('span', null, '친구 한 명이 편 수와, 그 친구와 나를 뺀 나머지 중 해당하는 수를 비교해요. 친구 쪽이 1 많으면 내 카드도 해당해요.'))),
         h('li', null, h('div', null, h('b', null, '알았으면 먼저 외쳐요'), h('span', null, `맞히면 1점, 틀리면 1점을 잃어요. ${WIN}점을 먼저 내면 이겨요.`)))),
       h('div', { class: 'field' }, h('label', { for: 'nick' }, '닉네임'), nick),
-      h('div', { class: 'field' }, h('label', null, '컴퓨터 속도'), speedSeg()),
+      h('div', { class: 'field' }, h('label', null, '속도'), speedSeg(), h('p', { class: 'fine', style: 'margin-top:6px' }, '생각할 시간과 컴퓨터가 외치는 속도가 함께 바뀌어요.')),
       prefill ? null : h('div', { class: 'row' }, h('button', { class: 'btn btn-primary', type: 'button', onclick: () => { if (needNick()) return; startSolo(3); } }, '컴퓨터 3명과 하기')),
       prefill ? null : h('div', { class: 'row', style: 'margin-top:8px' }, create),
       prefill ? null : h('hr'),
@@ -76,7 +76,7 @@
 
   function speedSeg() {
     const wrap = h('div', { class: 'seg', role: 'radiogroup', 'aria-label': '컴퓨터 속도' });
-    const draw = () => { wrap.innerHTML = ''; Object.entries(SPEEDS).forEach(([k, v]) => wrap.append(h('button', { type: 'button', role: 'radio', 'aria-checked': (S.speed || 'slow') === k ? 'true' : 'false', class: (S.speed || 'slow') === k ? 'on' : null, onclick: () => { S.speed = k; save(); draw(); } }, v.label))); };
+    const draw = () => { wrap.innerHTML = ''; Object.entries(SPEEDS).forEach(([k, v]) => wrap.append(h('button', { type: 'button', role: 'radio', 'aria-checked': (S.speed || 'fast') === k ? 'true' : 'false', class: (S.speed || 'fast') === k ? 'on' : null, onclick: () => { S.speed = k; save(); draw(); } }, v.label))); };
     draw(); return wrap;
   }
 
@@ -111,7 +111,7 @@
       ON.isHost ? h('div', { class: 'field' }, h('label', null, '컴퓨터 플레이어'), h('div', { class: 'stepper' },
         h('button', { type: 'button', 'aria-label': '줄이기', onclick: () => { ON.bots = Math.max(0, ON.bots - 1); lobbyView(); } }, '−'), h('b', null, ON.bots + '명'),
         h('button', { type: 'button', 'aria-label': '늘리기', onclick: () => { ON.bots = Math.min(maxBots, ON.bots + 1); lobbyView(); } }, '+'))) : null,
-      ON.isHost && ON.bots ? h('div', { class: 'field' }, h('label', null, '컴퓨터 속도'), speedSeg()) : null,
+      ON.isHost ? h('div', { class: 'field' }, h('label', null, '속도'), speedSeg()) : null,
       ON.isHost ? h('button', { class: 'btn btn-primary', type: 'button', style: 'width:100%', disabled: total < 3, onclick: () => hostStart(ms) }, total < 3 ? '사람과 컴퓨터를 합쳐 3명부터 할 수 있어요' : `${total}명으로 시작하기`)
         : h('p', { class: 'fine' }, '방장이 시작하면 바로 게임 화면으로 넘어가요.'),
       h('button', { class: 'btn-text', type: 'button', onclick: () => { history.replaceState(null, '', location.pathname); showTitle(); } }, '방 나가기'));
@@ -152,7 +152,7 @@
   function trueCount(j, k) { const H = ON.H; return H.players.filter((p, i) => i !== j && PROPS[k].f(p.card.v)).length; }
   function startPick(first) {
     const H = ON.H; if (!first) H.cur = (H.cur + 1) % H.players.length;
-    H.phase = 'pick'; H.q = null; H.answers = {}; H.ready = {}; H.deadline = ON.solo ? 0 : Date.now() + PICK_MS;
+    H.phase = 'pick'; H.q = null; H.answers = {}; H.ready = {}; H.deadline = Date.now() + speed().pick;
     const P = H.players[H.cur];
     if (P.bot) later(1300 + Math.random() * 1200, () => { if (H.phase === 'pick' && ON.H === H) doPick(botPick(H.cur)); });
     sync();
@@ -160,7 +160,7 @@
   function doPick(i) {
     const H = ON.H; if (H.phase !== 'pick') return; i = Math.max(0, Math.min(H.faceUp.length - 1, i | 0));
     H.q = H.faceUp.splice(i, 1)[0]; H.faceUp.push(drawQ());
-    H.phase = 'answer'; H.answers = {}; H.deadline = ON.solo ? 0 : Date.now() + ANSWER_MS;
+    H.phase = 'answer'; H.answers = {}; H.deadline = Date.now() + speed().answer;
     H.players.forEach((p, j) => { if (p.bot) later(900 + Math.random() * 2200, () => { if (H.phase === 'answer' && ON.H === H) { H.answers[j] = trueCount(j, H.q); afterAnswer(); } }); });
     sync();
   }
@@ -169,7 +169,7 @@
     const H = ON.H; if (H.phase !== 'answer') return;
     H.players.forEach((p, j) => { if (H.answers[j] == null) H.answers[j] = trueCount(j, H.q); });
     H.log.push({ q: H.q, ans: H.players.map((p, j) => H.answers[j]) });
-    H.phase = 'reveal'; H.ready = {}; H.deadline = ON.solo ? 0 : Date.now() + REVEAL_MS;
+    H.phase = 'reveal'; H.ready = {}; H.deadline = Date.now() + speed().reveal;
     sync(); botsThink();
   }
   function hostTick() {
@@ -211,8 +211,8 @@
     const card = P.card; const ok = card.v === v;
     if (ok) { P.pts++; P.taken.push(card); } else { P.pts = Math.max(0, P.pts - 1); H.piles.push(card); }
     P.card = drawCard(); P.since = H.log.length; P.seq++; P.callAt = 0;
-    ON.room.broadcast({ k: 'ev', p: j, name: P.name, v, ok, card });
-    if (P.pts >= WIN) { H.phase = 'over'; H.winner = j; }
+    const over = P.pts >= WIN; ON.room.broadcast({ k: 'ev', p: j, name: P.name, v, ok, card, over });
+    if (over) { H.phase = 'over'; H.winner = j; }
     sync(); botsThink();
   }
   function hostHandle(d, from) {
@@ -231,7 +231,7 @@
     const H = ON.H; const me = H.players[j];
     const piles = H.piles.concat(...H.players.map(p => p.taken));
     return {
-      k: 'st', phase: H.phase, cur: H.cur, q: H.q, faceUp: H.faceUp, left: Math.max(0, H.deadline - Date.now()), total: H.phase === 'pick' ? PICK_MS : H.phase === 'answer' ? ANSWER_MS : REVEAL_MS,
+      k: 'st', phase: H.phase, cur: H.cur, q: H.q, faceUp: H.faceUp, left: Math.max(0, H.deadline - Date.now()), total: H.phase === 'pick' ? speed().pick : H.phase === 'answer' ? speed().answer : speed().reveal,
       me: j, seq: me ? me.seq : 0, winner: H.winner, win: WIN, solo: ON.solo,
       timed: !!H.deadline, readyN: Object.keys(H.ready || {}).length, humans: H.players.filter(p => !p.bot).length, iReady: !!(H.ready && H.ready[j]),
       players: H.players.map((p, i) => ({ name: p.name, bot: p.bot, pts: p.pts, card: i === j ? null : p.card, answered: H.answers[i] != null, ans: H.phase === 'reveal' || H.phase === 'over' ? (H.answers[i] == null ? null : H.answers[i]) : null })),
@@ -259,7 +259,7 @@
     if (d.k === 'ev') {
       const mine = ON.st && d.p === ON.st.me;
       sfx(d.ok ? (mine ? 'win' : 'stamp') : 'hit');
-      const fl = h('div', { class: 'flash' }, h('div', null, `${mine ? '나' : d.name}: ${RANKS[d.v - 1]}!`, h('small', null, d.ok ? '정답이에요' : `틀렸어요. 실제로는 ${RANKS[d.card.v - 1]}`)));
+      const fl = h('div', { class: 'flash' }, h('div', null, `${mine ? '나' : d.name}: ${RANKS[d.v - 1]}!`, h('small', null, (d.ok ? '정답! +1점' : `틀렸어요. 실제로는 ${RANKS[d.card.v - 1]} · −1점`) + (d.over ? '' : ` · 새 카드를 받고 계속해요`))));
       document.body.append(fl); setTimeout(() => fl.remove(), 1700);
     }
   }
@@ -275,10 +275,12 @@
       st.phase === 'answer' ? h('span', { class: 'finger wait' }, p.answered ? '✓' : '…') : null,
       st.phase === 'reveal' && p.ans != null ? h('span', { class: 'finger', 'aria-label': `손가락 ${p.ans}개` }, p.ans) : null)));
     const myP = st.players[me] || { name: '관전', pts: 0 };
-    const mine = h('div', { class: 'me' + (st.cur === me ? ' turn' : '') }, cardEl(null), h('div', null, h('h2', null, `${myP.name} · ${myP.pts}/${st.win}점`), h('p', null, '내 카드만 안 보여요. 아래 기록으로 좁혀 보세요.'),
+    const mine = h('div', { class: 'me' + (st.cur === me ? ' turn' : '') }, cardEl(null), h('div', null, h('h2', null, `${myP.name} · ${myP.pts}/${st.win}점`), h('p', null, '맞히면 새 카드를 받고 게임은 계속돼요.'),
       st.phase === 'reveal' && st.players[me] && st.players[me].ans != null ? h('p', null, `내가 편 손가락: ${st.players[me].ans}`) : null));
+    const board = h('div', { class: 'board', 'aria-label': '점수' }, h('span', { class: 'goal' }, `${st.win}점 먼저 내면 승리`),
+      st.players.map((p, i) => h('span', { class: 'sc' + (i === me ? ' mine' : '') }, `${i === me ? '나' : p.name} `, h('b', null, p.pts))));
     app.innerHTML = '';
-    app.append(...[top, others, mine, stageEl(st), st.phase !== 'over' && me >= 0 ? h('button', { class: 'call', type: 'button', onclick: openCall }, '알았다! 내 숫자 외치기') : null, notesEl(st)].filter(Boolean));
+    app.append(...[top, board, others, mine, stageEl(st), st.phase !== 'over' && me >= 0 ? h('button', { class: 'call', type: 'button', onclick: openCall }, '알았다! 내 숫자 외치기') : null, notesEl(st)].filter(Boolean));
     startTimerBar();
   }
   function confirmLeave() { return !ON.st || ON.st.phase === 'over' || window.confirm('게임에서 나갈까요?'); }
@@ -306,7 +308,7 @@
     // reveal
     return h('div', { class: 'stage' }, h('div', { class: 'q big' }, h('b', null, PROPS[st.q].label), h('small', null, hintOf(st.q))),
       h('p', { class: 'sub', style: 'margin-top:10px' }, '친구 한 명이 편 수와, 그 친구와 나를 뺀 나머지 중 해당하는 사람 수를 비교해 보세요. 친구 쪽이 1 많으면 내 카드도 해당해요.'),
-      me >= 0 ? h('button', { class: 'btn btn-primary', type: 'button', style: 'width:100%', disabled: st.iReady, onclick: () => { sfx('tap'); toHost({ k: 'h:ready' }); } }, st.iReady ? (st.humans > 1 ? `다른 사람 기다리는 중 (${st.readyN}/${st.humans})` : '넘어가는 중') : '다 생각했어요. 다음 질문') : null,
+      me >= 0 ? h('button', { class: 'btn btn-primary', type: 'button', style: 'width:100%', disabled: st.iReady, onclick: () => { sfx('tap'); toHost({ k: 'h:ready' }); } }, st.iReady ? (st.humans > 1 ? `다른 사람 기다리는 중 (${st.readyN}/${st.humans})` : '넘어가는 중') : '바로 다음 질문') : null,
       timerBar());
   }
   function timerBar() { return ON.st && ON.st.timed ? h('div', { class: 'timer', 'aria-hidden': 'true' }, h('i')) : null; }

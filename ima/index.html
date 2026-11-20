@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#1E4D3B">
 <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<link rel="stylesheet" href="../shared/brand.css?v=20261120d">
+<link rel="stylesheet" href="../shared/brand.css?v=20261121a">
 <style>
 /* Layout idea: a card table at night — green felt, cream cards held up to foreheads, the only unknown is your own. */
 :root {
@@ -67,6 +67,11 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 18px 0; }
 .top .brand { margin: 0; color: var(--cream); }
 .top .meta { font-size: 13px; opacity: .8; overflow: hidden; text-overflow: ellipsis; }
 .iconbtn { background: rgba(255,255,255,.12); border: 0; border-radius: 10px; padding: 6px 10px; font-size: 13px; font-weight: 700; }
+.board { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: -2px 0 12px; font-size: 13px; }
+.board .goal { font-weight: 800; color: var(--gold); margin-right: 4px; }
+.board .sc { background: rgba(255,255,255,.12); border-radius: 999px; padding: 3px 10px; }
+.board .sc b { font-weight: 900; }
+.board .sc.mine { background: var(--gold); color: var(--ink); }
 .others { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px; margin-bottom: 14px; }
 .seat { position: relative; display: grid; justify-items: center; gap: 6px; padding: 8px 4px 10px; border-radius: 16px; }
 .seat.turn { background: rgba(242,182,50,.16); box-shadow: inset 0 0 0 2px var(--gold); }
@@ -137,9 +142,9 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 18px 0; }
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="../vendor/peerjs.min.js?v=20261120d"></script>
-<script src="../shared/net.js?v=20261120d"></script>
-<script src="../shared/sfx.js?v=20261120d"></script>
-<script src="app.js?v=20261120d"></script>
+<script src="../vendor/peerjs.min.js?v=20261121a"></script>
+<script src="../shared/net.js?v=20261121a"></script>
+<script src="../shared/sfx.js?v=20261121a"></script>
+<script src="app.js?v=20261121a"></script>
 </body>
 </html>
