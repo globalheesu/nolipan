@@ -15,7 +15,7 @@
 <link rel="apple-touch-icon" href="../assets/icon-180.png">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<link rel="stylesheet" href="../shared/brand.css">
+<link rel="stylesheet" href="../shared/brand.css?v=20261120b">
 <style>
 /* Layout idea: every phone is one tile of a shared tabletop. Menus are a bold yellow card; in play the whole screen is the tile. */
 :root {
@@ -85,14 +85,15 @@ input[type=text] { font-size: 16px; border: 2px solid var(--ink); border-radius:
 #ctrl .btn { pointer-events: auto; }
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: var(--sun); padding: 10px 16px; border-radius: 12px; z-index: 60; font-size: 14px; font-weight: 700; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+.solo { margin: 4px 0 18px; } .solo .btn { width: 100%; } .solo .fine { margin: 8px 0 0; }
 </style>
 </head>
 <body>
 <div id="menu"></div>
 <div id="stage"><canvas id="cv"></canvas><div id="hud"></div><div id="banner"></div><div id="ctrl"></div></div>
-<script src="../vendor/peerjs.min.js"></script>
-<script src="../shared/net.js"></script>
-<script src="../shared/sfx.js"></script>
-<script src="app.js"></script>
+<script src="../vendor/peerjs.min.js?v=20261120b"></script>
+<script src="../shared/net.js?v=20261120b"></script>
+<script src="../shared/sfx.js?v=20261120b"></script>
+<script src="app.js?v=20261120b"></script>
 </body>
 </html>
