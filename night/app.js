@@ -5,7 +5,7 @@
   const HEX = ['#2563D9', '#E8761A', '#7C4DDB', '#0E8F84', '#D53F7C', '#8A5A2B'];
   const ICON = ['●', '▲', '■', '★', '◆', '✚'];
   const NPC = [['경비원', '경'], ['청소부', '청'], ['큐레이터', '큐'], ['보안 요원', '보'], ['전기 기사', '전'], ['배달원', '배']];
-  const CODE_LO = 5000, CODE_HI = 9999;
+  const CODE_LO = 7000, CODE_HI = 9999;
   const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   function h(tag, attrs, ...kids) { const el = document.createElement(tag); if (attrs) for (const [k, v] of Object.entries(attrs)) { if (v == null || v === false) continue; if (k === 'class') el.className = v; else if (k === 'style') el.style.cssText = v; else if (k.startsWith('on')) el.addEventListener(k.slice(2), v); else el.setAttribute(k, v === true ? '' : v); } for (const kid of kids.flat()) { if (kid == null || kid === false) continue; el.append(kid.nodeType ? kid : document.createTextNode(String(kid))); } return el; }
   const NS = 'http://www.w3.org/2000/svg';
@@ -63,7 +63,7 @@
   let keepScroll = false;
   function screen(...cards) { const y = window.scrollY; app.innerHTML = ''; app.append(h('div', { class: 'col' }, ...cards)); window.scrollTo(0, keepScroll ? y : 0); keepScroll = false; }
   function brandLink() { return h('a', { class: 'brand', href: HOME, 'aria-label': '놀이판 홈' }, h('span', { class: 'brand-mark', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')), '놀이판'); }
-  function soundBtn() { const b = h('button', { class: 'iconbtn', type: 'button', 'aria-pressed': String(window.NoliSFX.on()), onclick: () => { window.NoliSFX.set(!window.NoliSFX.on()); b.textContent = window.NoliSFX.on() ? '소리 켬' : '소리 끔'; b.setAttribute('aria-pressed', String(window.NoliSFX.on())); } }, window.NoliSFX.on() ? '소리 켬' : '소리 끔'); return b; }
+  function soundBtn() { const b = h('button', { class: 'iconbtn', type: 'button', 'aria-pressed': String(window.NoliSFX.on()), onclick: () => { window.NoliSFX.set(!window.NoliSFX.on()); b.textContent = window.NoliSFX.on() ? '소리' : '무음'; b.setAttribute('aria-pressed', String(window.NoliSFX.on())); } }, window.NoliSFX.on() ? '소리' : '무음'); return b; }
   function top(meta) { return h('div', { class: 'top' }, h('h1', null, '밤의 기록'), h('span', { class: 'meta' }, meta || ''), soundBtn(), h('button', { class: 'iconbtn', type: 'button', onclick: showRules }, '규칙'), h('button', { class: 'iconbtn', type: 'button', onclick: confirmLeave }, '나가기')); }
   function modal(...kids) { const bg = h('div', { class: 'modal-bg', role: 'dialog', 'aria-modal': 'true' }, h('div', { class: 'card', style: 'max-height:90vh;overflow:auto' }, ...kids)); document.body.append(bg); const f = bg.querySelector('button'); if (f) f.focus(); return bg; }
   function toast(t) { const el = h('div', { class: 'toast', role: 'status' }, t); document.body.append(el); setTimeout(() => el.remove(), 3200); }

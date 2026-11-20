@@ -148,7 +148,7 @@
     app.innerHTML = '';
     const map = g.map;
     els.round = h('span', { class: 'round' });
-    els.sound = h('button', { class: 'iconbtn', type: 'button', 'aria-pressed': String(NoliSFX.on()), 'aria-label': '소리', onclick: e => { NoliSFX.set(!NoliSFX.on()); e.currentTarget.setAttribute('aria-pressed', String(NoliSFX.on())); e.currentTarget.textContent = NoliSFX.on() ? '소리 켬' : '소리 끔'; } }, NoliSFX.on() ? '소리 켬' : '소리 끔');
+    els.sound = h('button', { class: 'iconbtn', type: 'button', 'aria-pressed': String(NoliSFX.on()), 'aria-label': '소리', onclick: e => { NoliSFX.set(!NoliSFX.on()); e.currentTarget.setAttribute('aria-pressed', String(NoliSFX.on())); e.currentTarget.textContent = NoliSFX.on() ? '소리' : '무음'; } }, NoliSFX.on() ? '소리' : '무음');
     const top = h('div', { class: 'topbar' }, h('h1', null, 'OVERLAP'), els.round, els.sound,
       h('button', { class: 'iconbtn', type: 'button', onclick: showRules }, '규칙'),
       h('button', { class: 'iconbtn', type: 'button', onclick: confirmQuit }, '나가기'));
@@ -594,7 +594,7 @@
   // ONLINE (room capability: presence-only, commit–reveal for secrets)
   // ============================================================
   const net = { table: null, code: null, isHost: false, tablePeers: [], myPorts: [], secret: null, plan: {}, commits: {}, started: false, cfg: null };
-  const CODE_LO = 1000, CODE_HI = 4999;
+  const CODE_LO = 1000, CODE_HI = 3999;
   function salt() { const a = new Uint32Array(4); crypto.getRandomValues(a); return Array.from(a, x => x.toString(16).padStart(8, '0')).join(''); }
   function canon(v) { if (Array.isArray(v)) return '[' + v.map(canon).join(',') + ']'; if (v && typeof v === 'object') return '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + canon(v[k])).join(',') + '}'; return JSON.stringify(v === undefined ? null : v); }
   async function hash(obj) {
