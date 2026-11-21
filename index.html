@@ -127,6 +127,22 @@ footer a { text-decoration: none; color: var(--ink-2); }
   <section class="games" id="games" aria-labelledby="games-title">
     <h2 id="games-title">지금 할 수 있는 게임</h2>
     <div class="grid">
+      <a class="game" href="market/">
+        <div class="cover" style="background:#1B1F3B">
+          <svg viewBox="0 0 320 200" aria-hidden="true">
+            <rect x="70" y="50" width="70" height="96" rx="11" fill="#E4572E"/><text x="105" y="112" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="40" fill="#fff">5</text>
+            <text x="160" y="108" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="28" fill="#FFF8EC" opacity=".7">+</text>
+            <rect x="180" y="50" width="70" height="96" rx="11" fill="#FFF8EC" stroke="#1A1A22" stroke-width="3" stroke-dasharray="7 5"/><text x="215" y="112" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="40" fill="#1A1A22">?</text>
+            <g transform="rotate(-8 262 40)"><rect x="226" y="18" width="72" height="44" rx="10" fill="#FFC53D" stroke="#1A1A22" stroke-width="3"/><text x="262" y="50" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="26" fill="#1A1A22">9</text></g>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>깜깜이 시장</h3>
+          <p>내 물건 값만 나만 몰라요. 가격은 계속 떨어지고, 먼저 치는 사람이 임자예요.</p>
+          <div class="chips"><span>3–5명</span><span>10–20분</span><span>온라인</span><span>컴퓨터와 연습</span></div>
+          <span class="cta">플레이하기</span>
+        </div>
+      </a>
       <a class="game" href="mijisu/">
         <div class="cover" style="background:#1E4D3B">
           <svg viewBox="0 0 320 200" aria-hidden="true">
@@ -170,7 +186,7 @@ footer a { text-decoration: none; color: var(--ink-2); }
 
   <footer>
     <span>© 2026 놀이판</span>
-    <span><a href="mijisu/">미지수</a> · <a href="overlap/">OVERLAP</a></span>
+    <span><a href="market/">깜깜이 시장</a> · <a href="mijisu/">미지수</a> · <a href="overlap/">OVERLAP</a></span>
   </footer>
 </div>
 <script>
@@ -184,6 +200,7 @@ footer a { text-decoration: none; color: var(--ink-2); }
     var n = +c;
     if (n >= 1000 && n <= 3999) location.href = 'overlap/?room=' + c;
     else if (n >= 4000 && n <= 6999) location.href = 'mijisu/?room=' + c;
+    else if (n >= 7000 && n <= 9999) location.href = 'market/?room=' + c;
     else { msg.textContent = '없는 방 코드예요. 다시 확인해 주세요.'; input.focus(); }
   });
 })();
