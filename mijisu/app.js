@@ -27,7 +27,7 @@
   function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
   function toast(t) { document.querySelectorAll('.toast').forEach(x => x.remove()); const el = h('div', { class: 'toast', role: 'status' }, t); document.body.append(el); setTimeout(() => el.remove(), 2600); }
   function cardEl(c, extra) {
-    if (!c) return h('div', { class: 'card ' + (extra || '') }, h('span', { class: 'r' }, '?'));
+    if (!c) return h('div', { class: 'card ' + (extra || ''), 'aria-label': '내 카드' }, h('span', { class: 'r', style: 'font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700' }, 'x'));
     const red = c.s === 1 || c.s === 2;
     return h('div', { class: 'card' + (red ? ' red' : '') + (extra ? ' ' + extra : ''), 'aria-label': RANKS[c.v - 1] + ' ' + SUITS[c.s] }, h('span', { class: 's' }, SUITS[c.s]), h('span', { class: 'r' }, RANKS[c.v - 1]), h('span', { class: 's2' }, SUITS[c.s]));
   }
@@ -54,12 +54,12 @@
     const join = h('button', { class: 'btn', type: 'button', disabled: !ok, onclick: async e => { if (needNick()) return; const c = code.value.replace(/\D/g, ''); if (c.length !== 4) { msg.textContent = '4자리 방 코드를 입력하세요.'; code.focus(); return; } const b = e.currentTarget; busy(b, true, '연결 중'); try { ON.room = await window.NoliNet.join('im', c); ON.isHost = false; afterJoin(); } catch (er) { busy(b, false); msg.textContent = er && er.type === 'not-found' ? '방을 찾을 수 없어요. 코드를 다시 확인해 주세요.' : '연결하지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.'; } } }, '참가하기');
     code.addEventListener('keydown', e => { if (e.key === 'Enter') join.click(); });
     sheet(brand(),
-      h('div', { class: 'logo' }, h('div', { class: 'mini', 'aria-hidden': 'true' }, '?'), h('h1', null, '이마셈')),
-      h('p', { class: 'tag' }, '친구들 숫자는 다 보이는데 내 숫자만 안 보여요. 친구들이 편 손가락으로 내 숫자를 알아내고 먼저 외치세요.'),
+      h('div', { class: 'logo' }, h('div', { class: 'mini', 'aria-hidden': 'true' }, 'x'), h('h1', null, '미지수')),
+      h('p', { class: 'tag' }, '남의 숫자는 다 보이는데 내 숫자만 몰라요. 친구들의 답으로 내 숫자를 풀어내고 먼저 외치세요.'),
       h('div', { class: 'chips' }, h('span', null, '3–5명'), h('span', null, '한 판 10분'), h('span', null, '컴퓨터와 연습')),
       prefill ? null : h('ol', { class: 'rules' },
         h('li', null, h('div', null, h('b', null, '질문을 골라요'), h('span', null, '차례인 사람이 "짝수?" 같은 질문 하나를 골라요.'))),
-        h('li', null, h('div', null, h('b', null, '동시에 손가락을 펴요'), h('span', null, '내 눈에 보이는 사람 중 해당하는 사람 수를 눌러요.'))),
+        h('li', null, h('div', null, h('b', null, '동시에 답해요'), h('span', null, '내 눈에 보이는 사람 중 해당하는 사람 수를 눌러요.'))),
         h('li', null, h('div', null, h('b', null, '내 카드를 알아내요'), h('span', null, '친구 한 명이 편 수와, 그 친구와 나를 뺀 나머지 중 해당하는 수를 비교해요. 친구 쪽이 1 많으면 내 카드도 해당해요.'))),
         h('li', null, h('div', null, h('b', null, '알았으면 먼저 외쳐요'), h('span', null, `맞히면 1점, 틀리면 1점을 잃어요. ${WIN}점을 먼저 내면 이겨요.`)))),
       h('div', { class: 'field' }, h('label', { for: 'nick' }, '닉네임'), nick),
@@ -102,7 +102,7 @@
     const maxBots = Math.max(0, 5 - ms.length);
     ON.bots = Math.min(ON.bots, maxBots);
     const total = ms.length + ON.bots;
-    const invite = h('button', { class: 'btn btn-primary', type: 'button', onclick: async e => { const b = e.currentTarget; const url = location.origin + location.pathname + '?room=' + ON.room.code; const text = `이마셈 같이 해요. 방 코드 ${ON.room.code}`; if (navigator.share) { try { await navigator.share({ title: '이마셈', text, url }); return; } catch (er) { if (er && er.name === 'AbortError') return; } } try { await navigator.clipboard.writeText(url); b.textContent = '링크를 복사했어요'; setTimeout(() => b.textContent = '초대 링크 보내기', 2000); } catch (er) { b.textContent = url; } } }, '초대 링크 보내기');
+    const invite = h('button', { class: 'btn btn-primary', type: 'button', onclick: async e => { const b = e.currentTarget; const url = location.origin + location.pathname + '?room=' + ON.room.code; const text = `미지수 같이 해요. 방 코드 ${ON.room.code}`; if (navigator.share) { try { await navigator.share({ title: '미지수', text, url }); return; } catch (er) { if (er && er.name === 'AbortError') return; } } try { await navigator.clipboard.writeText(url); b.textContent = '링크를 복사했어요'; setTimeout(() => b.textContent = '초대 링크 보내기', 2000); } catch (er) { b.textContent = url; } } }, '초대 링크 보내기');
     sheet(brand(),
       h('div', { class: 'roomcode' }, h('span', null, '방 코드'), h('b', null, ON.room.code)),
       h('div', { class: 'row', style: 'margin:10px 0 16px' }, invite),
