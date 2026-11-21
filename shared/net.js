@@ -14,9 +14,21 @@
   'use strict';
   const PREFIX = 'nolipan-v1-';
   const GRACE_MS = 45000;
+  // Relay (TURN) servers let phones on different mobile networks reach each other.
+  // Set TURN_URL to the Open Relay / Metered credentials URL (…/api/v1/turn/credentials?apiKey=…).
+  const TURN_URL = root.NOLI_TURN_URL || '';
+  let turnList = null, turnPromise = null;
+  function ready() {
+    if (turnList || !TURN_URL || (root.NOLI_PEER_OPTS && root.NOLI_PEER_OPTS.config)) return Promise.resolve();
+    if (!turnPromise) turnPromise = Promise.race([
+      fetch(TURN_URL).then(r => r.ok ? r.json() : []).then(list => { turnList = Array.isArray(list) ? list.filter(x => x && x.urls) : []; }).catch(() => { turnList = []; }),
+      new Promise(res => setTimeout(res, 4000))
+    ]).then(() => { if (!turnList) turnList = []; });
+    return turnPromise;
+  }
   function opts() {
     const o = Object.assign({ debug: 0 }, root.NOLI_PEER_OPTS || {});
-    o.config = o.config || { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }].concat(root.NOLI_TURN || []) };
+    o.config = o.config || { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun.cloudflare.com:3478' }].concat(turnList || [], root.NOLI_TURN || []) };
     return o;
   }
   function makeId(game, code) { return PREFIX + game + '-' + code; }
@@ -39,7 +51,7 @@
   }
 
   function host(game, code) {
-    return new Promise((resolve, reject) => {
+    return ready().then(() => new Promise((resolve, reject) => {
       const r = base(); const id = makeId(game, code);
       const peer = new root.Peer(id, opts());
       const members = new Map(); // peerId -> {presence, conn, away, joinedAt}
@@ -70,11 +82,11 @@
       r.api.broadcast = data => { r.emitMsg(clone(data), id); for (const [q, m] of members) if (q !== id && m.conn && m.conn.open) m.conn.send({ t: 'msg', from: id, data }); };
       r.api.leave = () => { r.closed = true; for (const [, m] of members) if (m.conn) try { m.conn.close(); } catch (e) { } try { peer.destroy(); } catch (e) { } r.emitStat('closed'); return Promise.resolve(); };
       setTimeout(() => { if (!settled) { settled = true; try { peer.destroy(); } catch (e) { } reject({ type: 'timeout' }); } }, 15000);
-    });
+    }));
   }
 
   function join(game, code) {
-    return new Promise((resolve, reject) => {
+    return ready().then(() => new Promise((resolve, reject) => {
       const r = base(); const hostId = makeId(game, code);
       const peer = new root.Peer(opts());
       let conn = null, settled = false, retry = 0;
@@ -103,8 +115,8 @@
       r.api.broadcast = data => { r.emitMsg(clone(data), peer.id); if (conn && conn.open) conn.send({ t: 'msg', to: '*', data }); };
       r.api.leave = () => { r.closed = true; try { conn && conn.close(); } catch (e) { } try { peer.destroy(); } catch (e) { } r.emitStat('closed'); return Promise.resolve(); };
       r.api.hostId = hostId;
-      setTimeout(() => { if (!settled) { settled = true; try { peer.destroy(); } catch (e) { } reject({ type: 'timeout' }); } }, 15000);
-    });
+      setTimeout(() => { if (!settled) { settled = true; try { peer.destroy(); } catch (e) { } reject({ type: 'timeout' }); } }, 20000);
+    }));
   }
 
   // Create a room with a free random code in [lo, hi]

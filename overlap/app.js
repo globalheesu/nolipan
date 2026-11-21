@@ -640,7 +640,7 @@
   async function joinTable(code, btn) {
     busy(btn, true, '연결 중');
     try { net.table = await window.NoliNet.join('ov', code); net.isHost = false; afterJoin(); }
-    catch (e) { busy(btn, false); els.lobbyMsg.textContent = e && e.type === 'not-found' ? '방을 찾을 수 없어요. 코드를 다시 확인해 주세요.' : '연결하지 못했어요. 네트워크 상태를 확인하고 다시 시도해 주세요.'; }
+    catch (e) { busy(btn, false); els.lobbyMsg.textContent = e && e.type === 'not-found' ? '방을 찾을 수 없어요. 코드를 다시 확인해 주세요.' : e && e.type === 'timeout' ? '방은 찾았는데 연결이 안 됐어요. 방장 화면이 켜져 있는지 확인하고, 두 폰을 같은 와이파이에 연결하면 대부분 바로 돼요.' : '연결하지 못했어요. 네트워크 상태를 확인하고 다시 시도해 주세요.'; }
   }
   function afterJoin() {
     net.code = net.table.code; S.code = net.code; net.started = false; net.cfg = null; net.tablePeers = [];
