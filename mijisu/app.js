@@ -1,18 +1,17 @@
 (function () {
   'use strict';
   const CODE_LO = 4000, CODE_HI = 6999;
-  const RANKS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'];
+  const RANKS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
   const SUITS = ['♠', '♥', '♦', '♣'];
   const PROPS = {
     even: { label: '짝수?', f: v => v % 2 === 0 },
     ge7: { label: '7 이상?', f: v => v >= 7 },
     le4: { label: '4 이하?', f: v => v <= 4 },
     m3: { label: '3의 배수?', f: v => v % 3 === 0 },
-    prime: { label: '소수?', f: v => [2, 3, 5, 7, 11, 13].includes(v) },
+    prime: { label: '소수?', f: v => [2, 3, 5, 7, 11].includes(v) },
     m4: { label: '4의 배수?', f: v => v % 4 === 0 },
     mid: { label: '5~8?', f: v => v >= 5 && v <= 8 },
     sq: { label: '1·4·9?', f: v => v === 1 || v === 4 || v === 9 },
-    ge12: { label: '12 이상?', f: v => v >= 12 },
   };
   const hintOf = k => RANKS.filter((r, i) => PROPS[k].f(i + 1)).join(' ');
   const BOT_NAMES = ['도도', '모모', '쿠키', '보리'];
@@ -140,7 +139,7 @@
     for (let i = 0; i < ON.bots; i++) { let n = BOT_NAMES[i]; while (used.has(n)) n += '2'; used.add(n); players.push({ id: 'bot' + i, name: n, bot: true }); }
     shuffle(players);
     const H = ON.H = { players: players.map(p => Object.assign(p, { card: null, pts: 0, taken: [], since: 0, seq: 0, callAt: 0 })), deck: [], piles: [], qdeck: [], faceUp: [], phase: 'pick', cur: Math.floor(Math.random() * players.length), q: null, answers: {}, log: [], deadline: 0, winner: null, wrongs: {} };
-    for (let v = 1; v <= 13; v++) for (let s = 0; s < 4; s++) H.deck.push({ v, s });
+    for (let v = 1; v <= 12; v++) for (let s = 0; s < 4; s++) H.deck.push({ v, s });
     shuffle(H.deck);
     H.players.forEach(p => { p.card = H.deck.pop(); });
     while (H.faceUp.length < 3) H.faceUp.push(drawQ());
@@ -183,7 +182,7 @@
   function visibleRankCount(j, v) { const H = ON.H; let c = H.players.filter((p, i) => i !== j && p.card.v === v).length; c += H.piles.filter(x => x.v === v).length; H.players.forEach(p => { c += p.taken.filter(x => x.v === v).length; }); return c; }
   function candidates(j) {
     const H = ON.H; const P = H.players[j]; const qs = H.log.slice(P.since).map(e => e.q);
-    const out = []; for (let v = 1; v <= 13; v++) { if (visibleRankCount(j, v) >= 4) continue; if (qs.every(k => PROPS[k].f(v) === PROPS[k].f(P.card.v))) out.push(v); }
+    const out = []; for (let v = 1; v <= 12; v++) { if (visibleRankCount(j, v) >= 4) continue; if (qs.every(k => PROPS[k].f(v) === PROPS[k].f(P.card.v))) out.push(v); }
     return out;
   }
   function botPick(j) {
@@ -208,7 +207,7 @@
   }
   function doCall(j, v) {
     const H = ON.H; if (!H || H.phase === 'over') return; const P = H.players[j]; if (!P) return;
-    v = v | 0; if (v < 1 || v > 13) return;
+    v = v | 0; if (v < 1 || v > 12) return;
     const card = P.card; const ok = card.v === v;
     if (ok) { P.pts++; P.taken.push(card); } else { P.pts = Math.max(0, P.pts - 1); H.piles.push(card); }
     P.card = drawCard(); P.since = H.log.length; P.seq++; P.callAt = 0;
