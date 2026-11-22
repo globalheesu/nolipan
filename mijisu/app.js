@@ -12,6 +12,7 @@
     m4: { label: '4의 배수?', f: v => v % 4 === 0 },
     mid: { label: '5~8?', f: v => v >= 5 && v <= 8 },
     sq: { label: '1·4·9?', f: v => v === 1 || v === 4 || v === 9 },
+    ge12: { label: '12 이상?', f: v => v >= 12 },
   };
   const hintOf = k => RANKS.filter((r, i) => PROPS[k].f(i + 1)).join(' ');
   const BOT_NAMES = ['도도', '모모', '쿠키', '보리'];
