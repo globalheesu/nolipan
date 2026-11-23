@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#1B1F3B">
 <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<link rel="stylesheet" href="../shared/brand.css?v=20261122a">
+<link rel="stylesheet" href="../shared/brand.css?v=20261123a">
 <style>
 /* A night market: indigo dusk, lantern-yellow price tag, cream goods cards. The price tag is the hero. */
 :root {
@@ -101,6 +101,10 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 18px 0; }
 .pp .col { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
 .pp .col .card.small { box-shadow: none; }
 .pp .empty { font-size: 12px; opacity: .6; margin-top: 6px; }
+.tip { background: rgba(255,197,61,.14); border: 1px solid rgba(255,197,61,.5); color: var(--cream); border-radius: 14px; padding: 10px 12px; font-size: 14px; margin-bottom: 12px; }
+.tip b { color: var(--lamp); }
+.modal { position: fixed; inset: 0; background: rgba(8,10,25,.6); display: grid; place-items: end center; z-index: 20; padding: 16px; overflow-y: auto; }
+.modal .sheet { width: 100%; max-width: 520px; }
 .help { font-size: 13px; opacity: .75; margin: 12px 2px 0; }
 .toast { position: fixed; left: 50%; top: max(14px, env(safe-area-inset-top)); transform: translateX(-50%); background: var(--ink); color: var(--cream); padding: 10px 16px; border-radius: 999px; font-weight: 700; font-size: 14px; z-index: 40; box-shadow: 0 8px 24px rgba(0,0,0,.3); max-width: calc(100% - 32px); text-align: center; }
 .winner { text-align: center; } .winner b { font-size: 30px; display: block; letter-spacing: -0.03em; }
@@ -109,9 +113,10 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 18px 0; }
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="../vendor/peerjs.min.js?v=20261122a"></script>
-<script src="../shared/net.js?v=20261122a"></script>
-<script src="../shared/sfx.js?v=20261122a"></script>
-<script src="app.js?v=20261122a"></script>
+<script src="../vendor/peerjs.min.js?v=20261123a"></script>
+<script src="../shared/net.js?v=20261123a"></script>
+<script src="../shared/sfx.js?v=20261123a"></script>
+<script src="app.js?v=20261123a"></script>
+<script src="../shared/inapp.js?v=20261123a" defer></script>
 </body>
 </html>

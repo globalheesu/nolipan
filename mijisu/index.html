@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#1E4D3B">
 <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<link rel="stylesheet" href="../shared/brand.css?v=20261122c">
+<link rel="stylesheet" href="../shared/brand.css?v=20261123a">
 <style>
 /* Layout idea: a card table at night — green felt, cream cards held up to foreheads, the only unknown is your own. */
 :root {
@@ -128,7 +128,12 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 18px 0; }
 .log .e i { font-style: normal; background: rgba(255,255,255,.14); border-radius: 999px; padding: 1px 8px; }
 .empty { font-size: 13px; opacity: .7; margin: 6px 0 0; }
 
-.modal { position: fixed; inset: 0; background: rgba(10,20,15,.6); display: grid; place-items: end center; z-index: 20; padding: 16px; }
+.tip { background: rgba(242,182,50,.16); border: 1px solid rgba(242,182,50,.55); border-radius: 14px; padding: 10px 12px; font-size: 14px; margin-bottom: 12px; }
+.tip b { color: var(--gold); }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--ink-2); margin: 4px 0 14px; cursor: pointer; }
+.check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--ink); flex: none; }
+.check b { color: var(--ink); }
+.modal { position: fixed; inset: 0; background: rgba(10,20,15,.6); display: grid; place-items: end center; z-index: 20; padding: 16px; overflow-y: auto; }
 .modal .sheet { width: 100%; max-width: 520px; }
 .toast { position: fixed; left: 50%; top: max(14px, env(safe-area-inset-top)); transform: translateX(-50%); background: var(--ink); color: var(--cream); padding: 10px 16px; border-radius: 999px; font-weight: 700; font-size: 14px; z-index: 40; box-shadow: 0 8px 24px rgba(0,0,0,.3); max-width: calc(100% - 32px); text-align: center; animation: drop .3s ease; }
 @keyframes drop { from { transform: translate(-50%, -12px); opacity: 0; } }
@@ -142,9 +147,10 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 18px 0; }
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="../vendor/peerjs.min.js?v=20261122c"></script>
-<script src="../shared/net.js?v=20261122c"></script>
-<script src="../shared/sfx.js?v=20261122c"></script>
-<script src="app.js?v=20261122c"></script>
+<script src="../vendor/peerjs.min.js?v=20261123a"></script>
+<script src="../shared/net.js?v=20261123a"></script>
+<script src="../shared/sfx.js?v=20261123a"></script>
+<script src="app.js?v=20261123a"></script>
+<script src="../shared/inapp.js?v=20261123a" defer></script>
 </body>
 </html>

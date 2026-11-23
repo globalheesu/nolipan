@@ -52,11 +52,7 @@
       h('div', { class: 'logo' }, h('div', { class: 'tagmark', 'aria-hidden': 'true' }, '?'), h('h1', null, '깜깜이 시장')),
       h('p', { class: 'tag' }, '내 물건 값만 나만 몰라요. 가격은 계속 떨어지고, 먼저 치는 사람이 임자예요.'),
       h('div', { class: 'chips' }, h('span', null, '3–5명'), h('span', null, '10–20분'), h('span', null, '컴퓨터와 연습')),
-      prefill ? null : h('ol', { class: 'rules' },
-        h('li', null, h('div', null, h('b', null, '물건은 카드 두 장이에요'), h('span', null, '앞면 카드는 남들만 보고, 봉인 카드는 파는 사람만 봐요. 값은 두 장을 더한 거예요.'))),
-        h('li', null, h('div', null, h('b', null, '파는 사람이 시작가를 불러요'), h('span', null, '봉인이 좋은 척 비싸게 불러도 돼요. 단, 시작가가 실제 값보다 3 이상 높았는데 남이 사 가면 넘친 만큼 벌금이에요.'))),
-        h('li', null, h('div', null, h('b', null, '가격이 떨어지면 먼저 치세요'), h('span', null, '먼저 친 사람이 그 값에 사요. 파는 사람도 쳐서 자기가 가질 수 있어요.'))),
-        h('li', null, h('div', null, h('b', null, '같은 색을 모으면 보너스'), h('span', null, `한 사람이 ${ROUNDS}번씩 팔면 끝나요. 코인, 물건 값, 색 보너스를 더해 제일 높은 사람이 이겨요.`)))),
+      prefill ? null : rulesList(),
       h('div', { class: 'field' }, h('label', { for: 'nick' }, '닉네임'), nick),
       h('div', { class: 'field' }, h('label', null, '속도'), speedSeg()),
       prefill ? null : h('div', { class: 'row' }, h('button', { class: 'btn btn-primary', type: 'button', onclick: () => { if (needNick()) return; startSolo(3); } }, '컴퓨터 3명과 하기')),
@@ -68,10 +64,33 @@
     if (prefill) (S.nick ? join : nick).focus();
   }
 
+  function rulesList() {
+    return h('ol', { class: 'rules' },
+      h('li', null, h('div', null, h('b', null, '물건은 카드 두 장이에요'), h('span', null, '앞면 카드는 남들만 보고, 봉인 카드는 파는 사람만 봐요. 값은 두 장을 더한 거예요.'))),
+      h('li', null, h('div', null, h('b', null, '파는 사람이 시작가를 불러요'), h('span', null, '봉인이 좋은 척 비싸게 불러도 돼요. 단, 시작가가 실제 값보다 3 이상 높았는데 남이 사 가면 넘친 만큼 벌금이에요.'))),
+      h('li', null, h('div', null, h('b', null, '가격이 떨어지면 먼저 치세요'), h('span', null, '먼저 친 사람이 그 값에 사요. 파는 사람도 쳐서 자기가 가질 수 있어요. 0까지 아무도 안 사면 파는 사람이 공짜로 가져요.'))),
+      h('li', null, h('div', null, h('b', null, '같은 색을 모으면 보너스'), h('span', null, `한 사람이 ${ROUNDS}번씩 팔면 끝나요. 코인 + 물건 값 + 색 보너스(같은 색 2장 +2, 3장 +5, 4장 +9, 5장 +14)가 제일 높은 사람이 이겨요.`))));
+  }
+  function openRules() {
+    const m = h('div', { class: 'modal', onclick: e => { if (e.target === m) m.remove(); } },
+      h('div', { class: 'sheet', role: 'dialog', 'aria-label': '규칙' }, h('h3', { style: 'margin:0 0 12px;font-size:20px' }, '깜깜이 시장 규칙'), rulesList(),
+        h('div', { class: 'row' }, h('button', { class: 'btn', type: 'button', onclick: () => { S.tips = !tipsOn(); save(); m.remove(); if (ON.st) render(); } }, tipsOn() ? '도움말 끄기' : '도움말 다시 보기'), h('button', { class: 'btn btn-primary', type: 'button', onclick: () => m.remove() }, '닫기'))));
+    document.body.append(m);
+  }
+  const tipsOn = () => S.tips !== false;
+  function tipEl(st) {
+    if (!tipsOn() || st.phase === 'over' || st.me < 0) return null;
+    const me = st.me, seller = st.seller === me; let t = '';
+    if (st.phase === 'announce') t = seller ? `물건 값은 대략 "봉인 ${st.seal} + 앞면 평균 3.5" 정도예요. 그보다 조금 높게 부르면 무난하고, 훨씬 높게 부르면 허세예요.` : '판매자가 높게 부르면 봉인이 좋을 수도, 허세일 수도 있어요. 시작가를 잘 보세요.';
+    else if (st.phase === 'auction') t = seller ? '아무도 안 사면 앞면이 낮다는 신호예요. 너무 싸졌다 싶으면 직접 가져가세요.' : `내 예상 값 = 앞면 ${st.face ? st.face.v : '?'} + 봉인 짐작(보통 3쯤). 가격이 그보다 1~2 아래로 내려오면 치세요. 기다리면 남이 먼저 쳐요.`;
+    else if (st.phase === 'reveal') t = '산 물건은 색별로 모여요. 같은 색이 많을수록 보너스가 커져요.';
+    return t ? h('div', { class: 'tip', role: 'note' }, h('b', null, '도움말'), ' ', t) : null;
+  }
+
   // ============================================================
   // ROOM
   // ============================================================
-  function leaveRoom() { if (ON.room) { try { ON.room.leave(); } catch (e) { } } stopHost(); ON.room = null; ON.isHost = false; ON.solo = false; ON.st = null; ON.H = null; }
+  function leaveRoom() { if (ON.room) { const r = ON.room; if (ON.isHost && !ON.solo) { try { r.broadcast({ k: 'bye' }); } catch (e) { } setTimeout(() => { try { r.leave(); } catch (e) { } }, 200); } else { try { r.leave(); } catch (e) { } } } stopHost(); ON.room = null; ON.isHost = false; ON.solo = false; ON.st = null; ON.H = null; }
   const hostId = () => ON.isHost ? ON.room.me : ON.room.hostId;
   function toHost(m) { if (ON.room) ON.room.send(hostId(), m); }
   function members() { return ON.peers.filter(p => !p.away).sort((a, b) => ((a.presence || {}).joinedAt || 0) - ((b.presence || {}).joinedAt || 0)); }
@@ -80,9 +99,15 @@
     ON.room.presence({ name: cleanName(S.nick, '플레이어'), joinedAt: Date.now(), host: ON.isHost || null });
     ON.room.onPeers(ch => { ON.peers = ch.peers; if (!ON.st) lobbyView(); });
     ON.room.onMessage((d, from) => { if (!d || !d.k) return; if (ON.isHost && d.k.startsWith('h:')) hostHandle(d, from); else clientHandle(d); });
-    ON.room.onStatus(st => { if (st === 'online' && !ON.isHost) toHost({ k: 'h:hello' }); if (st === 'reconnecting') toast('연결이 불안정해요. 다시 연결하는 중이에요.'); });
+    ON.room.onStatus(st => { if (st === 'online' && !ON.isHost) toHost({ k: 'h:hello' }); if (st === 'reconnecting') toast('연결이 불안정해요. 다시 연결하는 중이에요.'); if (st === 'closed' && !ON.isHost && ON.room) roomClosed(); });
     if (!ON.isHost) toHost({ k: 'h:hello' });
     lobbyView();
+  }
+  function roomClosed() {
+    try { ON.room && ON.room.leave(); } catch (e) { }
+    ON.room = null; ON.st = null; history.replaceState(null, '', location.pathname);
+    sheet(brand(), h('h2', { style: 'margin:8px 0 6px;font-size:24px' }, '방이 닫혔어요'), h('p', { class: 'tag' }, '방장이 나갔거나 연결이 오래 끊겼어요. 방장에게 새 방을 만들어 달라고 하거나, 컴퓨터와 계속해 보세요.'),
+      h('button', { class: 'btn btn-primary', type: 'button', style: 'width:100%', onclick: () => showTitle() }, '처음으로'));
   }
   function lobbyView() {
     if (ON.st) return;
@@ -225,11 +250,12 @@
   // ============================================================
   let raf = 0;
   function clientHandle(d) {
+    if (d.k === 'bye') { if (!ON.isHost) roomClosed(); return; }
     if (d.k === 'st') {
       const prev = ON.st; ON.st = d; ON.stAt = Date.now();
       if (prev && prev.phase === 'auction' && d.phase === 'auction' && prev.price !== d.price) sfx('tick');
       if (d.phase === 'announce' && (!prev || prev.phase !== 'announce') && d.seller === d.me) sfx('flip');
-      if (d.phase === 'over' && (!prev || prev.phase !== 'over')) { const top = Math.max(...d.players.map(p => p.score)); sfx(d.players[d.me] && d.players[d.me].score === top ? 'win' : 'lose'); }
+      if (d.phase === 'over' && (!prev || prev.phase !== 'over')) { if (S.tips !== false) { S.tips = false; save(); } const top = Math.max(...d.players.map(p => p.score)); sfx(d.players[d.me] && d.players[d.me].score === top ? 'win' : 'lose'); }
       render(prev); return;
     }
     if (d.k === 'fx') { sfx(d.t === 'go' ? 'pop' : 'stamp'); return; }
@@ -239,10 +265,11 @@
     const st = ON.st; const me = st.me; const n = st.players.length;
     const top = h('div', { class: 'top' }, brand(), h('span', { class: 'meta' }, st.solo ? '연습 · 컴퓨터와' : '방 ' + ON.room.code), h('span', null,
       h('button', { class: 'iconbtn', type: 'button', onclick: e => { const on = !window.NoliSFX.on(); window.NoliSFX.set(on); e.currentTarget.textContent = on ? '소리' : '무음'; } }, window.NoliSFX && window.NoliSFX.on() ? '소리' : '무음'), ' ',
+      h('button', { class: 'iconbtn', type: 'button', onclick: openRules }, '규칙'), ' ',
       h('button', { class: 'iconbtn', type: 'button', onclick: () => { if (st.phase === 'over' || window.confirm('게임에서 나갈까요?')) { history.replaceState(null, '', location.pathname); showTitle(); } } }, '나가기')));
     const round = h('p', { class: 'round' }, st.phase === 'over' ? '게임 끝' : `${st.round}/${st.rounds}바퀴 · 경매 ${Math.min(st.sold + 1, st.total)}/${st.total}`);
     app.innerHTML = '';
-    app.append(top, round, stallEl(st, prev), peopleEl(st), h('p', { class: 'help' }, '점수 = 코인 + 산 물건 값 + 색 보너스(같은 색 2장 +2, 3장 +5, 4장 +9, 5장 +14)'));
+    app.append(...[top, round, tipEl(st), stallEl(st, prev), peopleEl(st)].filter(Boolean), h('p', { class: 'help' }, '점수 = 코인 + 산 물건 값 + 색 보너스(같은 색 2장 +2, 3장 +5, 4장 +9, 5장 +14)'));
     startTimer();
   }
   function stallEl(st, prev) {

@@ -57,13 +57,10 @@
       h('div', { class: 'logo' }, h('div', { class: 'mini', 'aria-hidden': 'true' }, 'x'), h('h1', null, '미지수')),
       h('p', { class: 'tag' }, '남의 숫자는 다 보이는데 내 숫자만 몰라요. 친구들의 답으로 내 숫자를 풀어내고 먼저 외치세요.'),
       h('div', { class: 'chips' }, h('span', null, '3–5명'), h('span', null, '한 판 10분'), h('span', null, '컴퓨터와 연습')),
-      prefill ? null : h('ol', { class: 'rules' },
-        h('li', null, h('div', null, h('b', null, '질문을 골라요'), h('span', null, '차례인 사람이 "짝수?" 같은 질문 하나를 골라요.'))),
-        h('li', null, h('div', null, h('b', null, '동시에 답해요'), h('span', null, '내 눈에 보이는 사람 중 해당하는 사람 수를 눌러요.'))),
-        h('li', null, h('div', null, h('b', null, '내 카드를 알아내요'), h('span', null, '친구 한 명이 편 수와, 그 친구와 나를 뺀 나머지 중 해당하는 수를 비교해요. 친구 쪽이 1 많으면 내 카드도 해당해요.'))),
-        h('li', null, h('div', null, h('b', null, '알았으면 먼저 외쳐요'), h('span', null, `맞히면 1점, 틀리면 1점을 잃어요. ${WIN}점을 먼저 내면 이겨요.`)))),
+      prefill ? null : rulesList(),
       h('div', { class: 'field' }, h('label', { for: 'nick' }, '닉네임'), nick),
       h('div', { class: 'field' }, h('label', null, '속도'), speedSeg(), h('p', { class: 'fine', style: 'margin-top:6px' }, '생각할 시간과 컴퓨터가 외치는 속도가 함께 바뀌어요.')),
+      h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: !!S.expert, onchange: e => { S.expert = e.target.checked; save(); } }), h('span', null, h('b', null, '고수 모드'), ' 지난 질문 기록을 숨겨요. 기억력도 실력이 돼요.')),
       prefill ? null : h('div', { class: 'row' }, h('button', { class: 'btn btn-primary', type: 'button', onclick: () => { if (needNick()) return; startSolo(3); } }, '컴퓨터 3명과 하기')),
       prefill ? null : h('div', { class: 'row', style: 'margin-top:8px' }, create),
       prefill ? null : h('hr'),
@@ -80,10 +77,43 @@
     draw(); return wrap;
   }
 
+  function rulesList() {
+    return h('ol', { class: 'rules' },
+        h('li', null, h('div', null, h('b', null, '질문을 골라요'), h('span', null, '차례인 사람이 "짝수?" 같은 질문 하나를 골라요.'))),
+        h('li', null, h('div', null, h('b', null, '동시에 답해요'), h('span', null, '내 눈에 보이는 사람 중 해당하는 사람 수를 눌러요.'))),
+        h('li', null, h('div', null, h('b', null, '내 카드를 알아내요'), h('span', null, '친구 한 명이 편 수와, 그 친구와 나를 뺀 나머지 중 해당하는 수를 비교해요. 친구 쪽이 1 많으면 내 카드도 해당해요.'))),
+        h('li', null, h('div', null, h('b', null, '알았으면 먼저 외쳐요'), h('span', null, `맞히면 1점, 틀리면 1점을 잃어요. ${WIN}점을 먼저 내면 이겨요.`))));
+  }
+  const tipsOn = () => S.tips !== false;
+  function josa(w, withB, without) { const c = String(w).charCodeAt(String(w).length - 1); if (c < 0xAC00 || c > 0xD7A3) return w + withB + '(' + without + ')'; return w + (((c - 0xAC00) % 28) ? withB : without); }
+  function openRules() {
+    const m = h('div', { class: 'modal', 'data-keep': '1', onclick: e => { if (e.target === m) m.remove(); } },
+      h('div', { class: 'sheet', role: 'dialog', 'aria-label': '규칙' }, h('h3', { style: 'margin:0 0 12px;font-size:20px' }, '미지수 규칙'), rulesList(),
+        h('p', { class: 'fine', style: 'margin:0 0 14px' }, '같은 숫자는 4장뿐이에요. 남의 카드와 공개된 카드를 세면 후보를 더 빨리 지울 수 있어요.'),
+        h('div', { class: 'row' }, h('button', { class: 'btn', type: 'button', onclick: () => { S.tips = !tipsOn(); save(); m.remove(); if (ON.st) render(); } }, tipsOn() ? '도움말 끄기' : '도움말 다시 보기'), h('button', { class: 'btn btn-primary', type: 'button', onclick: () => m.remove() }, '닫기'))));
+    document.body.append(m);
+  }
+  function tipEl(st) {
+    if (!tipsOn() || st.phase === 'over' || st.me < 0) return null;
+    const me = st.me; let t = '';
+    if (st.phase === 'pick') t = st.cur === me ? '남들 숫자는 다 보여요. 내 후보는 반으로 줄고, 거의 다 푼 사람은 바로 못 맞히는 질문이 좋아요.' : '질문이 정해지면 내 눈에 보이는 카드만 세요.';
+    else if (st.phase === 'answer') t = '내 카드는 빼고, 보이는 카드 중 질문에 해당하는 장수를 눌러요.';
+    else if (st.phase === 'reveal') {
+      const e = st.log[st.log.length - 1]; const f = PROPS[st.q] && PROPS[st.q].f;
+      const j = st.players.findIndex((p, i) => i !== me && e && e.ans[i] != null);
+      if (f && j >= 0 && (ON.examples || 0) < 3) {
+        if (ON.exampleFor !== st.log.length + ':' + st.seq) { ON.examples = (ON.examples || 0) + 1; ON.exampleFor = st.log.length + ':' + st.seq; }
+        const seen = st.players.filter((p, i) => i !== me && i !== j && p.card && f(p.card.v)).length; const a = e.ans[j]; const d = a - seen;
+        t = `예시: ${josa(st.players[j].name, '이', '가')} ${a}개를 폈어요. ${josa(st.players[j].name, '과', '와')} 나를 빼고 보이는 해당 카드는 ${seen}장이에요. ${a} − ${seen} = ${d}이니, 내 카드는 "${PROPS[st.q].label.replace('?', '')}"에 ${d === 1 ? '해당해요' : '해당하지 않아요'}. 메모판에서 아닌 숫자를 지워 보세요.`;
+      } else t = '후보가 하나만 남으면 "알았다!"를 눌러요. 같은 숫자는 4장뿐이라는 것도 써먹으세요.';
+    }
+    return t ? h('div', { class: 'tip', role: 'note' }, h('b', null, '도움말'), ' ', t) : null;
+  }
+
   // ============================================================
   // ROOM
   // ============================================================
-  function leaveRoom() { if (ON.room) { try { ON.room.leave(); } catch (e) { } } stopHost(); ON.room = null; ON.isHost = false; ON.solo = false; ON.st = null; ON.H = null; }
+  function leaveRoom() { if (ON.room) { const r = ON.room; if (ON.isHost && !ON.solo) { try { r.broadcast({ k: 'bye' }); } catch (e) { } setTimeout(() => { try { r.leave(); } catch (e) { } }, 200); } else { try { r.leave(); } catch (e) { } } } stopHost(); ON.room = null; ON.isHost = false; ON.solo = false; ON.st = null; ON.H = null; }
   const hostId = () => ON.isHost ? ON.room.me : ON.room.hostId;
   function toHost(m) { if (ON.room) ON.room.send(hostId(), m); }
   function members() { return ON.peers.filter(p => !p.away).sort((a, b) => ((a.presence || {}).joinedAt || 0) - ((b.presence || {}).joinedAt || 0)); }
@@ -92,9 +122,15 @@
     ON.room.presence({ name: cleanName(S.nick, '플레이어'), joinedAt: Date.now(), host: ON.isHost || null });
     ON.room.onPeers(ch => { ON.peers = ch.peers; if (!ON.st || ON.st.phase === 'lobby') lobbyView(); });
     ON.room.onMessage((d, from) => { if (!d || !d.k) return; if (ON.isHost && d.k.startsWith('h:')) hostHandle(d, from); else clientHandle(d); });
-    ON.room.onStatus(st => { if (st === 'online' && !ON.isHost) toHost({ k: 'h:hello' }); if (st === 'reconnecting') toast('연결이 불안정해요. 다시 연결하는 중이에요.'); });
+    ON.room.onStatus(st => { if (st === 'online' && !ON.isHost) toHost({ k: 'h:hello' }); if (st === 'reconnecting') toast('연결이 불안정해요. 다시 연결하는 중이에요.'); if (st === 'closed' && !ON.isHost && ON.room) roomClosed(); });
     if (!ON.isHost) toHost({ k: 'h:hello' });
     lobbyView();
+  }
+  function roomClosed() {
+    try { ON.room && ON.room.leave(); } catch (e) { }
+    ON.room = null; ON.st = null; history.replaceState(null, '', location.pathname);
+    sheet(brand(), h('h2', { style: 'margin:8px 0 6px;font-size:24px' }, '방이 닫혔어요'), h('p', { class: 'tag' }, '방장이 나갔거나 연결이 오래 끊겼어요. 방장에게 새 방을 만들어 달라고 하거나, 컴퓨터와 계속해 보세요.'),
+      h('button', { class: 'btn btn-primary', type: 'button', style: 'width:100%', onclick: () => showTitle() }, '처음으로'));
   }
   function lobbyView() {
     if (ON.st && ON.st.phase !== 'lobby') return;
@@ -247,11 +283,12 @@
   // ============================================================
   let tick = null;
   function clientHandle(d) {
+    if (d.k === 'bye') { if (!ON.isHost) roomClosed(); return; }
     if (d.k === 'st') {
       const prev = ON.st; ON.st = d; ON.stAt = Date.now();
       if (d.seq !== ON.noteSeq) { ON.notes = []; ON.noteSeq = d.seq; }
       if (!prev || prev.phase !== d.phase || prev.cur !== d.cur) { ON.myAns = null; if (d.phase === 'answer') sfx('flip'); if (d.phase === 'reveal') sfx('pop'); }
-      if (d.phase === 'over' && (!prev || prev.phase !== 'over')) sfx(d.winner === d.me ? 'win' : 'lose');
+      if (d.phase === 'over' && (!prev || prev.phase !== 'over')) { sfx(d.winner === d.me ? 'win' : 'lose'); if (S.tips !== false) { S.tips = false; save(); } }
       render();
       return;
     }
@@ -269,6 +306,7 @@
     const me = st.me; const n = st.players.length;
     const top = h('div', { class: 'top' }, brand(), h('span', { class: 'meta' }, st.solo ? '연습 · 컴퓨터와' : '방 ' + ON.room.code), h('span', null,
       h('button', { class: 'iconbtn', type: 'button', onclick: e => { const on = !window.NoliSFX.on(); window.NoliSFX.set(on); e.currentTarget.textContent = on ? '소리' : '무음'; } }, window.NoliSFX && window.NoliSFX.on() ? '소리' : '무음'), ' ',
+      h('button', { class: 'iconbtn', type: 'button', onclick: openRules }, '규칙'), ' ',
       h('button', { class: 'iconbtn', type: 'button', onclick: () => { if (confirmLeave()) { history.replaceState(null, '', location.pathname); showTitle(); } } }, '나가기')));
     const others = h('div', { class: 'others' }, st.players.map((p, i) => i === me ? null : h('div', { class: 'seat' + (st.cur === i && st.phase !== 'over' ? ' turn' : '') },
       cardEl(p.card), h('span', { class: 'nm' }, p.name), h('span', { class: 'pts' }, `${p.pts}점`),
@@ -280,7 +318,7 @@
     const board = h('div', { class: 'board', 'aria-label': '점수' }, h('span', { class: 'goal' }, `${st.win}점 먼저 내면 승리`),
       st.players.map((p, i) => h('span', { class: 'sc' + (i === me ? ' mine' : '') }, `${i === me ? '나' : p.name} `, h('b', null, p.pts))));
     app.innerHTML = '';
-    app.append(...[top, board, others, mine, stageEl(st), st.phase !== 'over' && me >= 0 ? h('button', { class: 'call', type: 'button', onclick: openCall }, '알았다! 내 숫자 외치기') : null, notesEl(st)].filter(Boolean));
+    app.append(...[top, board, tipEl(st), others, mine, stageEl(st), st.phase !== 'over' && me >= 0 ? h('button', { class: 'call', type: 'button', onclick: openCall }, '알았다! 내 숫자 외치기') : null, notesEl(st)].filter(Boolean));
     startTimerBar();
   }
   function confirmLeave() { return !ON.st || ON.st.phase === 'over' || window.confirm('게임에서 나갈까요?'); }
@@ -323,7 +361,7 @@
     const rk = h('div', { class: 'ranks' }, RANKS.map((r, i) => h('button', { type: 'button', class: ON.notes.includes(i + 1) ? 'x' : null, 'aria-pressed': ON.notes.includes(i + 1) ? 'true' : 'false', onclick: e => { const v = i + 1; const k = ON.notes.indexOf(v); if (k >= 0) ON.notes.splice(k, 1); else ON.notes.push(v); e.currentTarget.classList.toggle('x'); } }, r)));
     const piles = st.piles.length ? h('p', { class: 'empty' }, '공개된 카드: ' + st.piles.map(v => RANKS[v - 1]).join(' ')) : null;
     return h('div', { class: 'notes' }, h('h4', null, '내 메모', h('span', null, '아닌 숫자를 눌러 지워요')), rk,
-      h('div', { class: 'log' }, st.log.length ? st.log.map(e => h('div', { class: 'e' }, h('b', null, PROPS[e.q].label), others.map(x => h('i', null, `${x.p.name} ${e.ans[x.i]}`)))) : h('p', { class: 'empty' }, '새 카드를 받은 뒤로 나온 질문이 여기에 쌓여요.')),
+      S.expert ? h('p', { class: 'empty' }, '고수 모드: 지난 질문 기록이 숨겨져 있어요.') : h('div', { class: 'log' }, st.log.length ? st.log.map(e => h('div', { class: 'e' }, h('b', null, PROPS[e.q].label), others.map(x => h('i', null, `${x.p.name} ${e.ans[x.i]}`)))) : h('p', { class: 'empty' }, '새 카드를 받은 뒤로 나온 질문이 여기에 쌓여요.')),
       piles);
   }
   function closeModal(all) { document.querySelectorAll('.modal').forEach(m => { if (all !== false || !m.dataset.keep) m.remove(); }); }

@@ -52,21 +52,26 @@ h1 { font-size: clamp(38px, 6.4vw, 64px); line-height: 1.12; letter-spacing: -0.
 .join .msg:empty { display: none; }
 .join .hint { margin: 10px 0 0; font-size: 14px; color: var(--ink-3); }
 
-.stage { position: relative; aspect-ratio: 1 / 1; max-width: 460px; width: 100%; justify-self: center; }
+.stage { position: relative; aspect-ratio: 1 / 1.08; max-width: 460px; width: 100%; justify-self: center; }
 .stage .sheet { position: absolute; border-radius: 22px; box-shadow: 0 24px 48px rgba(25,31,40,.18); overflow: hidden; }
-.stage .s1 { inset: 4% 22% 22% 2%; background: #2E5B49; transform: rotate(-6deg); }
-.stage .s2 { inset: 30% 0 0 30%; background: #23223D; transform: rotate(5deg); }
+.stage .s1, .stage .s2, .stage .s3 { width: 56%; aspect-ratio: 1 / 1; }
+.stage .s1 { left: 0; top: 0; transform: rotate(-9deg); }
+.stage .s2 { right: 0; top: 6%; transform: rotate(7deg); }
+.stage .s3 { left: 20%; bottom: 0; transform: rotate(-2deg); }
 .stage svg { width: 100%; height: 100%; display: block; }
 @media (prefers-reduced-motion: no-preference) {
   .stage .s1 { animation: inL .9s cubic-bezier(.2,.8,.2,1) both; }
   .stage .s2 { animation: inR .9s .12s cubic-bezier(.2,.8,.2,1) both; }
+  .stage .s3 { animation: inU .9s .24s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes inU { from { transform: translateY(40px) rotate(-10deg); opacity: 0; } }
   @keyframes inL { from { transform: translate(-30px, 20px) rotate(-14deg); opacity: 0; } }
   @keyframes inR { from { transform: translate(30px, 30px) rotate(14deg); opacity: 0; } }
 }
 
 section.games { padding: 8px 0 56px; }
 h2 { font-size: clamp(26px, 3.6vw, 34px); letter-spacing: -0.035em; font-weight: 800; margin: 0 0 20px; }
-.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 1020px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
 .game { display: grid; background: var(--surface); border-radius: 24px; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 1px 2px rgba(0,0,0,.04); transition: transform .2s ease, box-shadow .2s ease; }
 .game:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(25,31,40,.12); }
@@ -112,14 +117,23 @@ footer a { text-decoration: none; color: var(--ink-2); }
     </div>
     <div class="stage" aria-hidden="true">
       <div class="sheet s1">
-        <svg viewBox="0 0 300 300"><defs><pattern id="mg" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#44735F"/></pattern></defs><rect width="300" height="300" fill="url(#mg)"/>
-          <rect x="40" y="40" width="220" height="220" rx="8" fill="#E8EEE3"/>
-          <g style="mix-blend-mode:multiply"><path d="M78 222 V160 H130 V100 H190" fill="none" stroke="#2563D9" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/><path d="M222 222 V170 H190 V100" fill="none" stroke="#E8761A" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/></g>
-          <circle cx="190" cy="100" r="24" fill="none" stroke="#1F2A44" stroke-width="4"/><text x="150" y="78" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="30" fill="#1F2A44" letter-spacing="-1">OVERLAP</text></svg>
+        <svg viewBox="0 0 300 300"><defs><pattern id="mg" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#D5DCCF"/></pattern></defs><rect width="300" height="300" fill="#E8EEE3"/><rect width="300" height="300" fill="url(#mg)"/>
+          <g style="mix-blend-mode:multiply"><path d="M70 230 V160 H130 V96 H190" fill="none" stroke="#2563D9" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/><path d="M232 230 V170 H190 V96" fill="none" stroke="#E8761A" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></g>
+          <circle cx="190" cy="96" r="26" fill="none" stroke="#1F2A44" stroke-width="5"/></svg>
       </div>
       <div class="sheet s2">
-        <svg viewBox="0 0 300 300"><rect width="300" height="300" fill="#FBF3EA"/><rect x="40" y="40" width="220" height="220" rx="8" fill="#FFFFFF" stroke="#E8761A" stroke-width="3"/>
-          <path d="M222 222 V160 H170 V100 H110" fill="none" stroke="#E8761A" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/><circle cx="222" cy="222" r="10" fill="#E8761A"/></svg>
+        <svg viewBox="0 0 300 300"><rect width="300" height="300" fill="#1E4D3B"/>
+          <g transform="rotate(-9 92 150)"><rect x="52" y="92" width="80" height="112" rx="12" fill="#FFFBF2"/><text x="92" y="166" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="46" fill="#D23B3B">7</text></g>
+          <rect x="110" y="80" width="80" height="112" rx="12" fill="#2F6B57" stroke="#FFFBF2" stroke-width="4"/><text x="150" y="152" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="52" fill="#FFFBF2">x</text>
+          <g transform="rotate(9 208 150)"><rect x="168" y="92" width="80" height="112" rx="12" fill="#FFFBF2"/><text x="208" y="166" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="44" fill="#1B1A17">12</text></g>
+          <circle cx="150" cy="232" r="22" fill="#F2B632"/><text x="150" y="242" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="26" fill="#1B1A17">2</text></svg>
+      </div>
+      <div class="sheet s3">
+        <svg viewBox="0 0 300 300"><rect width="300" height="300" fill="#1B1F3B"/>
+          <rect x="50" y="96" width="84" height="116" rx="13" fill="#E4572E"/><text x="92" y="172" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="50" fill="#fff">5</text>
+          <text x="150" y="166" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="32" fill="#FFF8EC" opacity=".7">+</text>
+          <rect x="166" y="96" width="84" height="116" rx="13" fill="#FFF8EC" stroke="#1A1A22" stroke-width="4" stroke-dasharray="9 6"/><text x="208" y="172" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="50" fill="#1A1A22">?</text>
+          <g transform="rotate(-8 226 66)"><rect x="180" y="38" width="92" height="56" rx="12" fill="#FFC53D" stroke="#1A1A22" stroke-width="4"/><text x="226" y="78" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="34" fill="#1A1A22">9</text></g></svg>
       </div>
     </div>
   </header>
@@ -168,7 +182,7 @@ footer a { text-decoration: none; color: var(--ink-2); }
         <div class="body">
           <h3>OVERLAP</h3>
           <p>몰래 그린 길을 한꺼번에 겹쳐요. 부딪힌 칸은 먼저 도착한 사람의 것.</p>
-          <div class="chips"><span>2–6명</span><span>15–20분</span><span>온라인</span><span>컴퓨터 대전</span></div>
+          <div class="chips"><span>2–6명</span><span>15–20분</span><span>온라인</span><span>컴퓨터와 연습</span></div>
           <span class="cta">플레이하기</span>
         </div>
       </a>
@@ -178,7 +192,7 @@ footer a { text-decoration: none; color: var(--ink-2); }
   <section class="how" id="how" aria-labelledby="how-title">
     <h2 id="how-title">함께하는 법</h2>
     <ol class="steps">
-      <li><b>방 만들기</b><span>게임을 고르고 ‘온라인’에서 방을 만들어요.</span></li>
+      <li><b>방 만들기</b><span>게임을 고르고 ‘친구랑 방 만들기’를 눌러요. 혼자라면 컴퓨터와 바로 할 수 있어요.</span></li>
       <li><b>링크 보내기</b><span>초대 링크를 단톡방에 보내요. 코드만 불러 줘도 돼요.</span></li>
       <li><b>각자 폰으로 참가</b><span>친구들은 링크를 열고 닉네임만 정하면 들어와요.</span></li>
     </ol>
@@ -205,5 +219,6 @@ footer a { text-decoration: none; color: var(--ink-2); }
   });
 })();
 </script>
+<script src="shared/inapp.js?v=20261123a" defer></script>
 </body>
 </html>
