@@ -84,6 +84,15 @@ h2 { font-size: clamp(26px, 3.6vw, 34px); letter-spacing: -0.035em; font-weight:
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .chips span { font-size: 13px; font-weight: 600; color: var(--ink-2); background: var(--bg); border-radius: 999px; padding: 4px 10px; }
 .cta { margin-top: 10px; font-weight: 700; color: var(--blue); }
+.game.feat { grid-column: 1 / -1; grid-template-columns: 1.15fr 1fr; background: #121833; color: #F3EAD7; }
+.game.feat .cover { aspect-ratio: auto; min-height: 280px; }
+.game.feat .body { align-content: center; padding: 36px 40px; }
+.game.feat h3 { font-family: 'Gowun Batang', serif; font-size: 40px; letter-spacing: -0.02em; font-weight: 700; }
+.game.feat p { color: #CFC8E6; font-size: 17px; }
+.game.feat .chips span { background: #273266; color: #F3EAD7; }
+.game.feat .cta { color: #F4B942; }
+.game.feat .new { justify-self: start; font-size: 13px; font-weight: 800; background: #F4B942; color: #1D1A16; border-radius: 999px; padding: 4px 10px; }
+@media (max-width: 760px) { .game.feat { grid-template-columns: 1fr; } .game.feat .cover { min-height: 0; aspect-ratio: 16 / 10; } .game.feat .body { padding: 22px 24px 24px; } .game.feat h3 { font-size: 32px; } }
 
 section.how { padding: 8px 0 64px; }
 .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; counter-reset: s; }
@@ -96,6 +105,7 @@ section.how { padding: 8px 0 64px; }
 footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--ink-3); font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
 footer a { text-decoration: none; color: var(--ink-2); }
 </style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&display=swap">
 </head>
 <body>
 <div class="wrap">
@@ -141,6 +151,22 @@ footer a { text-decoration: none; color: var(--ink-2); }
   <section class="games" id="games" aria-labelledby="games-title">
     <h2 id="games-title">지금 할 수 있는 게임</h2>
     <div class="grid">
+      <a class="game feat" href="dream/">
+        <div class="cover" style="background:radial-gradient(120% 90% at 70% 0%, #273266, #121833 60%)">
+          <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><circle cx="30" cy="30" r="1.6" fill="#F3EAD7" opacity="0.8"/><circle cx="90" cy="60" r="1.2" fill="#F3EAD7" opacity="0.6"/><circle cx="150" cy="22" r="1.4" fill="#F3EAD7" opacity="0.7"/><circle cx="250" cy="40" r="1.1" fill="#F3EAD7" opacity="0.5"/><circle cx="300" cy="90" r="1.5" fill="#F3EAD7" opacity="0.8"/><circle cx="40" cy="150" r="1.2" fill="#F3EAD7" opacity="0.5"/><circle cx="290" cy="170" r="1.3" fill="#F3EAD7" opacity="0.6"/><circle cx="200" cy="15" r="1" fill="#F3EAD7" opacity="0.5"/>
+            <circle cx="262" cy="46" r="24" fill="#F4D98A"/><circle cx="262" cy="46" r="34" fill="#F4D98A" opacity=".15"/>
+            <circle cx="78" cy="128" r="30" fill="#2F8C7A" stroke="#0B0F22" stroke-width="3"/><ellipse cx="68.4" cy="114.5" rx="8.4" ry="4.2" fill="#fff" opacity=".4" transform="rotate(-25 68.4 114.5)"/><circle cx="140" cy="104" r="26" fill="#D46A86" stroke="#0B0F22" stroke-width="3"/><ellipse cx="131.68" cy="92.3" rx="7.280000000000001" ry="3.6400000000000006" fill="#fff" opacity=".4" transform="rotate(-25 131.68 92.3)"/><circle cx="196" cy="132" r="28" fill="#D9572F" stroke="#0B0F22" stroke-width="3"/><ellipse cx="187.04" cy="119.4" rx="7.840000000000001" ry="3.9200000000000004" fill="#fff" opacity=".4" transform="rotate(-25 187.04 119.4)"/><circle cx="248" cy="112" r="22" fill="#3E58B0" stroke="#0B0F22" stroke-width="3"/><ellipse cx="240.96" cy="102.1" rx="6.16" ry="3.08" fill="#fff" opacity=".4" transform="rotate(-25 240.96 102.1)"/>
+            <g transform="rotate(-6 160 172)"><rect x="118" y="160" width="84" height="26" rx="6" fill="#F3EAD7" stroke="#1D1A16" stroke-width="2.5"/><rect x="118" y="168" width="84" height="8" fill="#C8412F"/></g>
+          </svg>
+        </div>
+        <div class="body">
+          <span class="new">새 대작</span>
+          <h3>꿈 사세요</h3>
+          <p>남의 꿈은 훤히 보이는데 내 꿈은 여운만 남아요. 손님들의 비밀 의뢰를 채우며 새벽 장터의 큰 상인이 되세요.</p>
+          <div class="chips"><span>3–5명</span><span>15–25분</span><span>온라인</span><span>컴퓨터와 연습</span></div>
+          <span class="cta">장터 열기</span>
+        </div>
+      </a>
       <a class="game" href="market/">
         <div class="cover" style="background:#1B1F3B">
           <svg viewBox="0 0 320 200" aria-hidden="true">
@@ -200,7 +226,7 @@ footer a { text-decoration: none; color: var(--ink-2); }
 
   <footer>
     <span>© 2026 놀이판</span>
-    <span><a href="market/">깜깜이 시장</a> · <a href="mijisu/">미지수</a> · <a href="overlap/">OVERLAP</a></span>
+    <span><a href="dream/">꿈 사세요</a> · <a href="market/">깜깜이 시장</a> · <a href="mijisu/">미지수</a> · <a href="overlap/">OVERLAP</a></span>
   </footer>
 </div>
 <script>
@@ -212,7 +238,8 @@ footer a { text-decoration: none; color: var(--ink-2); }
     var c = input.value.replace(/\D/g, '');
     if (c.length !== 4) { msg.textContent = '4자리 코드를 입력하세요.'; input.focus(); return; }
     var n = +c;
-    if (n >= 1000 && n <= 3999) location.href = 'overlap/?room=' + c;
+    if (n >= 1000 && n <= 2999) location.href = 'overlap/?room=' + c;
+    else if (n >= 3000 && n <= 3999) location.href = 'dream/?room=' + c;
     else if (n >= 4000 && n <= 6999) location.href = 'mijisu/?room=' + c;
     else if (n >= 7000 && n <= 9999) location.href = 'market/?room=' + c;
     else { msg.textContent = '없는 방 코드예요. 다시 확인해 주세요.'; input.focus(); }
