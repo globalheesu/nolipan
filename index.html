@@ -9,106 +9,64 @@
 <meta property="og:description" content="설치 없이 바로. 친구들과 각자 폰으로 함께해요.">
 <meta property="og:image" content="assets/og-home.png">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#F2F4F6">
+<meta name="theme-color" content="#ECEDE8">
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<link rel="stylesheet" href="shared/brand.css?v=20261120b">
+<link rel="stylesheet" href="shared/ui.css?v=20261126d">
 <style>
-/* Layout idea: a calm product shell (neutral grays, white surfaces) where each game brings its own world as a cover image. */
-:root {
-  --bg: #F2F4F6; --surface: #FFFFFF; --ink: #191F28; --ink-2: #4E5968; --ink-3: #8B95A1; --line: #E5E8EB;
-  --blue: #2563D9; --orange: #E8761A; --red: #CF3838;
-  --font: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
-  color-scheme: light;
+/* Hub: a quiet shelf; each game is a box whose cover is its own table. */
+.page { max-width: 1120px; margin: 0 auto; padding: max(8px, env(safe-area-inset-top)) 20px max(32px, env(safe-area-inset-bottom)); }
+nav { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+nav .brand { font-size: 17px; } nav .brand-mark { transform: scale(1.12); }
+nav .links { display: flex; gap: 4px; } nav .links a { text-decoration: none; color: var(--ink-2); font-weight: 600; font-size: 15px; padding: 8px 12px; border-radius: 10px; } nav .links a:hover { background: var(--fill); color: var(--ink); }
+.hero { display: grid; gap: 28px; padding: 28px 0 44px; align-items: center; }
+.hero h1 { margin: 0; font-size: clamp(38px, 6.4vw, 64px); font-weight: 800; letter-spacing: -0.055em; line-height: 1.08; }
+.hero .sub { margin: 16px 0 0; font-size: clamp(16px, 1.6vw, 19px); color: var(--ink-2); max-width: 26em; line-height: 1.6; }
+.join { margin-top: 28px; background: var(--surface); border-radius: var(--r-lg); padding: 20px; max-width: 440px; }
+.join label { display: block; font-size: 14px; font-weight: 700; color: var(--ink-2); margin-bottom: 8px; }
+.join .row input { flex: 1 1 auto; text-align: center; letter-spacing: .3em; font-size: 22px; font-weight: 700; }
+.join .row .btn { flex: none; min-width: 104px; }
+.join .hint { margin: 10px 0 0; color: var(--ink-3); font-size: 13px; }
+.mosaic { display: none; }
+@media (min-width: 900px) {
+  .hero { grid-template-columns: 1.05fr 1fr; padding: 48px 0 72px; gap: 56px; }
+  .mosaic { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; transform: rotate(-3deg); }
+  .mosaic div { aspect-ratio: 1 / .78; border-radius: 22px; background: var(--t); display: grid; place-items: center; padding: 14px; box-shadow: 0 24px 48px -24px rgba(20,24,30,.45); }
+  .mosaic div:nth-child(2) { transform: translateY(28px); } .mosaic div:nth-child(4) { transform: translateY(28px); }
+  .mosaic svg { width: 100%; height: 100%; }
 }
-* { box-sizing: border-box; }
-html, body { margin: 0; }
-html, body { overflow-x: hidden; }
-body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
-a { color: inherit; }
-.wrap { width: min(1080px, 100%); margin: 0 auto; padding: 0 20px; }
-nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
-nav .brand { margin: 0; font-size: 18px; opacity: 1; }
-nav .links { display: flex; gap: 6px; }
-nav .links a { text-decoration: none; font-weight: 600; font-size: 15px; color: var(--ink-2); padding: 8px 12px; border-radius: 10px; }
-nav .links a:hover { background: rgba(0,0,0,.04); color: var(--ink); }
-
-.hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 40px; align-items: center; padding: 48px 0 56px; }
-@media (max-width: 860px) { .hero { grid-template-columns: 1fr; padding: 24px 0 40px; gap: 28px; } .stage { max-width: 300px; } }
-h1 { font-size: clamp(38px, 6.4vw, 64px); line-height: 1.12; letter-spacing: -0.045em; font-weight: 800; margin: 0 0 18px; text-wrap: balance; }
-.sub { overflow-wrap: anywhere; font-size: clamp(17px, 2.2vw, 20px); color: var(--ink-2); margin: 0 0 28px; max-width: 30em; letter-spacing: -0.01em; }
-.hero > * { min-width: 0; }
-.join { width: 100%; background: var(--surface); border-radius: 20px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06); max-width: 440px; }
-.join label { display: block; font-weight: 700; font-size: 15px; margin-bottom: 10px; }
-.join .row { display: flex; gap: 8px; }
-.join input { flex: 1 1 0; width: 0; min-width: 0; font: inherit; font-size: 22px; font-weight: 800; letter-spacing: .3em; text-align: center; border: 0; background: var(--bg); border-radius: 12px; height: 56px; color: var(--ink); font-variant-numeric: tabular-nums; }
-.join input::placeholder { color: #C4CBD3; letter-spacing: .3em; }
-.join input:focus-visible { outline: 2px solid var(--blue); }
-.join button { font: inherit; font-weight: 700; border: 0; border-radius: 12px; height: 56px; padding: 0 22px; background: var(--ink); color: #fff; cursor: pointer; }
-.join button:active { transform: scale(.98); }
-.join .msg { margin: 10px 0 0; font-size: 14px; color: var(--red); min-height: 0; }
-.join .msg:empty { display: none; }
-.join .hint { margin: 10px 0 0; font-size: 14px; color: var(--ink-3); }
-
-.stage { position: relative; aspect-ratio: 1 / 1.08; max-width: 460px; width: 100%; justify-self: center; }
-.stage .sheet { position: absolute; border-radius: 22px; box-shadow: 0 24px 48px rgba(25,31,40,.18); overflow: hidden; }
-.stage .s1, .stage .s2, .stage .s3 { width: 56%; aspect-ratio: 1 / 1; }
-.stage .s1 { left: 0; top: 0; transform: rotate(-9deg); }
-.stage .s2 { right: 0; top: 6%; transform: rotate(7deg); }
-.stage .s3 { left: 20%; bottom: 0; transform: rotate(-2deg); }
-.stage svg { width: 100%; height: 100%; display: block; }
-@media (prefers-reduced-motion: no-preference) {
-  .stage .s1 { animation: inL .9s cubic-bezier(.2,.8,.2,1) both; }
-  .stage .s2 { animation: inR .9s .12s cubic-bezier(.2,.8,.2,1) both; }
-  .stage .s3 { animation: inU .9s .24s cubic-bezier(.2,.8,.2,1) both; }
-  @keyframes inU { from { transform: translateY(40px) rotate(-10deg); opacity: 0; } }
-  @keyframes inL { from { transform: translate(-30px, 20px) rotate(-14deg); opacity: 0; } }
-  @keyframes inR { from { transform: translate(30px, 30px) rotate(14deg); opacity: 0; } }
-}
-
-section.games { padding: 8px 0 56px; }
-h2 { font-size: clamp(26px, 3.6vw, 34px); letter-spacing: -0.035em; font-weight: 800; margin: 0 0 20px; }
-.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
-@media (max-width: 1020px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
-.game { display: grid; background: var(--surface); border-radius: 24px; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 1px 2px rgba(0,0,0,.04); transition: transform .2s ease, box-shadow .2s ease; }
-.game:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(25,31,40,.12); }
-.game:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
-.cover { aspect-ratio: 16 / 10; flex: none; }
-.cover svg { width: 100%; height: 100%; display: block; }
-.body { padding: 22px 24px 24px; display: grid; gap: 8px; }
-.body h3 { margin: 0; font-size: 24px; letter-spacing: -0.035em; font-weight: 800; }
-.body p { margin: 0; color: var(--ink-2); }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.chips span { font-size: 13px; font-weight: 600; color: var(--ink-2); background: var(--bg); border-radius: 999px; padding: 4px 10px; }
-.cta { margin-top: 10px; font-weight: 700; color: var(--blue); }
-.game.feat { grid-column: 1 / -1; grid-template-columns: 1.15fr 1fr; background: #17604F; color: #FFFDF6; }
-.game.feat .cover { aspect-ratio: auto; min-height: 280px; }
-.game.feat .body { align-content: center; padding: 36px 40px; }
-.game.feat h3 { font-family: 'Black Han Sans', var(--font, sans-serif); font-size: 48px; letter-spacing: -0.01em; font-weight: 900; }
-.game.feat p { color: #CFE6DE; font-size: 17px; }
-.game.feat .chips span { background: #0F4638; color: #FFFDF6; }
-.game.feat .cta { color: #FFE08A; }
-.game.feat .new { justify-self: start; font-size: 13px; font-weight: 800; background: #EDB937; color: #16201C; border-radius: 999px; padding: 4px 10px; }
-@media (max-width: 760px) { .game.feat { grid-template-columns: 1fr; } .game.feat .cover { min-height: 0; aspect-ratio: 16 / 10; } .game.feat .body { padding: 22px 24px 24px; } .game.feat h3 { font-size: 32px; } }
-
-section.how { padding: 8px 0 64px; }
-.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; counter-reset: s; }
-@media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
-.steps li { counter-increment: s; background: var(--surface); border-radius: 20px; padding: 22px; }
-.steps li::before { content: counter(s); display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: var(--ink); color: #fff; font-weight: 800; margin-bottom: 14px; }
-.steps b { display: block; font-size: 18px; letter-spacing: -0.02em; margin-bottom: 4px; }
+section h2 { margin: 0 0 18px; font-size: clamp(24px, 3vw, 32px); font-weight: 800; letter-spacing: -0.045em; }
+.games { padding: 8px 0 56px; }
+.grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 720px) { .grid { grid-template-columns: 1fr 1fr; gap: 20px; } }
+.tile { display: grid; background: var(--surface); border-radius: 26px; padding: 8px; text-decoration: none; color: inherit; transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
+.tile:hover { transform: translateY(-3px); box-shadow: 0 22px 44px -26px rgba(20,24,30,.4); }
+.tile:active { transform: scale(.99); }
+.tart { background: var(--t); border-radius: 20px; height: 196px; display: grid; place-items: center; padding: 6px 10px 0; overflow: hidden; }
+.tart svg { width: 100%; height: 100%; max-width: 360px; }
+.tbody { padding: 18px 14px 14px; }
+.tname { display: flex; align-items: center; gap: 10px; }
+.tname h3 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.045em; }
+.badge { font-size: 12px; font-weight: 700; color: #1E4A3E; background: #DCEBE3; border-radius: 999px; padding: 3px 9px; }
+.tbody p { margin: 6px 0 0; color: var(--ink-2); font-size: 15px; line-height: 1.55; }
+.tbody .meta { color: var(--ink-2); margin-top: 14px; }
+.tbody .meta .go { margin-left: auto; color: var(--ink); font-weight: 700; }
+.tbody .meta .go::after { content: ''; width: 7px; height: 7px; border-top: 2px solid currentColor; border-right: 2px solid currentColor; transform: rotate(45deg); margin-left: 2px; }
+.how { padding: 8px 0 56px; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; counter-reset: s; }
+@media (min-width: 720px) { .steps { grid-template-columns: repeat(3, 1fr); gap: 16px; } }
+.steps li { counter-increment: s; background: var(--surface); border-radius: 22px; padding: 22px; }
+.steps li::before { content: counter(s); display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: #fff; font-weight: 700; font-size: 13px; margin-bottom: 14px; }
+.steps b { display: block; font-size: 18px; letter-spacing: -0.03em; margin-bottom: 4px; }
 .steps span { color: var(--ink-2); font-size: 15px; }
-
-footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--ink-3); font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
-footer a { text-decoration: none; color: var(--ink-2); }
+footer { border-top: 1px solid var(--line); padding: 24px 0 8px; color: var(--ink-3); font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; }
+footer nav { height: auto; gap: 16px; display: flex; flex-wrap: wrap; justify-content: flex-start; } footer a { text-decoration: none; color: var(--ink-2); } footer a:hover { color: var(--ink); }
 </style>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&family=Black+Han+Sans&display=swap">
 </head>
 <body>
-<div class="wrap">
+<div class="page">
   <nav aria-label="주요 메뉴">
     <a class="brand" href="./" aria-label="놀이판 홈"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>놀이판</a>
     <div class="links"><a href="#games">게임</a><a href="#how">함께하는 법</a></div>
@@ -120,110 +78,55 @@ footer a { text-decoration: none; color: var(--ink-2); }
       <p class="sub">설치도 가입도 없어요. 방을 만들고 링크를 보내면, 친구들이 각자 폰으로 들어와요.</p>
       <form class="join" id="join" novalidate>
         <label for="code">초대받은 방 코드</label>
-        <div class="row"><input id="code" name="code" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="0000" autocomplete="off" aria-describedby="join-hint"><button type="submit">참가하기</button></div>
+        <div class="row"><input id="code" name="code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="0000" autocomplete="off" aria-describedby="join-hint"><button class="btn btn-primary" type="submit">참가</button></div>
         <p class="msg" id="join-msg" role="alert"></p>
         <p class="hint" id="join-hint">코드는 방을 만든 친구 화면에 있어요.</p>
       </form>
     </div>
-    <div class="stage" aria-hidden="true">
-      <div class="sheet s1">
-        <svg viewBox="0 0 300 300"><defs><pattern id="mg" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#D5DCCF"/></pattern></defs><rect width="300" height="300" fill="#E8EEE3"/><rect width="300" height="300" fill="url(#mg)"/>
-          <g style="mix-blend-mode:multiply"><path d="M70 230 V160 H130 V96 H190" fill="none" stroke="#2563D9" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/><path d="M232 230 V170 H190 V96" fill="none" stroke="#E8761A" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></g>
-          <circle cx="190" cy="96" r="26" fill="none" stroke="#1F2A44" stroke-width="5"/></svg>
-      </div>
-      <div class="sheet s2">
-        <svg viewBox="0 0 300 300"><rect width="300" height="300" fill="#1E4D3B"/>
-          <g transform="rotate(-9 92 150)"><rect x="52" y="92" width="80" height="112" rx="12" fill="#FFFBF2"/><text x="92" y="166" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="46" fill="#D23B3B">7</text></g>
-          <rect x="110" y="80" width="80" height="112" rx="12" fill="#2F6B57" stroke="#FFFBF2" stroke-width="4"/><text x="150" y="152" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="52" fill="#FFFBF2">x</text>
-          <g transform="rotate(9 208 150)"><rect x="168" y="92" width="80" height="112" rx="12" fill="#FFFBF2"/><text x="208" y="166" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="44" fill="#1B1A17">12</text></g>
-          <circle cx="150" cy="232" r="22" fill="#F2B632"/><text x="150" y="242" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="26" fill="#1B1A17">2</text></svg>
-      </div>
-      <div class="sheet s3">
-        <svg viewBox="0 0 300 300"><rect width="300" height="300" fill="#1B1F3B"/>
-          <rect x="50" y="96" width="84" height="116" rx="13" fill="#E4572E"/><text x="92" y="172" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="50" fill="#fff">5</text>
-          <text x="150" y="166" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="32" fill="#FFF8EC" opacity=".7">+</text>
-          <rect x="166" y="96" width="84" height="116" rx="13" fill="#FFF8EC" stroke="#1A1A22" stroke-width="4" stroke-dasharray="9 6"/><text x="208" y="172" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="50" fill="#1A1A22">?</text>
-          <g transform="rotate(-8 226 66)"><rect x="180" y="38" width="92" height="56" rx="12" fill="#FFC53D" stroke="#1A1A22" stroke-width="4"/><text x="226" y="78" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="34" fill="#1A1A22">9</text></g></svg>
-      </div>
-    </div>
+    <div class="mosaic" aria-hidden="true"><div style="--t:#1E4A3E"><svg viewBox="0 0 320 188"><ellipse cx="160" cy="176" rx="120" ry="8" fill="rgba(0,0,0,.18)"></ellipse><g transform="translate(82 82) rotate(-12)"><rect x="-27" y="-38" width="54" height="76" rx="8" fill="#FBFAF6"></rect><rect x="-27" y="-38" width="54" height="76" rx="8" fill="none" stroke="rgba(0,0,0,.06)"></rect><text x="0" y="14" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="38" letter-spacing="-1.5" fill="#8650BF">3</text><g transform="translate(-21 -32) scale(.5)" fill="#8650BF"><path d="M10 1.2 L12.6 7.2 L19 7.7 L14.1 11.9 L15.6 18.3 L10 14.9 L4.4 18.3 L5.9 11.9 L1 7.7 L7.4 7.2 Z"></path></g></g><g transform="translate(132 70) rotate(-4)"><rect x="-27" y="-38" width="54" height="76" rx="8" fill="#FBFAF6"></rect><rect x="-27" y="-38" width="54" height="76" rx="8" fill="none" stroke="rgba(0,0,0,.06)"></rect><text x="0" y="14" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="38" letter-spacing="-1.5" fill="#D9453F">5</text><g transform="translate(-21 -32) scale(.5)" fill="#D9453F"><circle cx="10" cy="10" r="8"></circle></g></g><g transform="translate(188 70) rotate(4)"><rect x="-27" y="-38" width="54" height="76" rx="8" fill="#FBFAF6"></rect><rect x="-27" y="-38" width="54" height="76" rx="8" fill="none" stroke="rgba(0,0,0,.06)"></rect><text x="0" y="14" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="38" letter-spacing="-1.5" fill="#8650BF">1</text><g transform="translate(-21 -32) scale(.5)" fill="#8650BF"><path d="M10 1.2 L12.6 7.2 L19 7.7 L14.1 11.9 L15.6 18.3 L10 14.9 L4.4 18.3 L5.9 11.9 L1 7.7 L7.4 7.2 Z"></path></g></g><g transform="translate(238 82) rotate(12)"><rect x="-27" y="-38" width="54" height="76" rx="8" fill="#FBFAF6"></rect><rect x="-27" y="-38" width="54" height="76" rx="8" fill="none" stroke="rgba(0,0,0,.06)"></rect><text x="0" y="14" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="38" letter-spacing="-1.5" fill="#2F67D8">4</text><g transform="translate(-21 -32) scale(.5)" fill="#2F67D8"><path d="M10 1 L19 10 L10 19 L1 10 Z"></path></g></g><g transform="translate(118 104) scale(.42)"><defs><linearGradient id="mbg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6D57E"></stop><stop offset=".55" stop-color="#E2B04A"></stop><stop offset="1" stop-color="#B9862A"></stop></linearGradient><linearGradient id="mbg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B3631"></stop><stop offset="1" stop-color="#211E1B"></stop></linearGradient></defs><ellipse cx="100" cy="170" rx="80" ry="14" fill="rgba(0,0,0,.28)"></ellipse><rect x="22" y="142" width="156" height="24" rx="12" fill="url(#mbg2)"></rect><path d="M34 146 C 34 80, 64 46, 100 46 C 136 46, 166 80, 166 146 Z" fill="url(#mbg1)"></path><path d="M56 112 C 60 84, 76 66, 98 61" fill="none" stroke="#FFF1C7" stroke-width="7" stroke-linecap="round" opacity=".55"></path><rect x="92" y="28" width="16" height="20" rx="5" fill="#B9862A"></rect><circle cx="100" cy="25" r="9" fill="url(#mbg1)"></circle></g></svg></div><div style="--t:#25303B"><svg viewBox="0 0 320 188"><ellipse cx="160" cy="176" rx="118" ry="8" fill="rgba(0,0,0,.22)"></ellipse><g transform="translate(90 92) rotate(-9)"><rect x="-32" y="-45" width="64" height="90" rx="9" fill="#FBFAF6"></rect><text x="0" y="14" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="38" letter-spacing="-2" fill="#C8423C">7</text><text x="-22" y="-28" font-size="12" fill="#C8423C">♥</text></g><g transform="translate(230 92) rotate(9)"><rect x="-32" y="-45" width="64" height="90" rx="9" fill="#FBFAF6"></rect><text x="0" y="14" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="38" letter-spacing="-2" fill="#25303B">12</text><text x="-22" y="-28" font-size="12" fill="#25303B">♠</text></g><g transform="translate(160 82) rotate(0)"><rect x="-32" y="-45" width="64" height="90" rx="9" fill="#34465A"></rect><text x="0" y="16" text-anchor="middle" font-family="Georgia, Times New Roman, serif" font-style="italic" font-weight="700" font-size="44" fill="#F4F4F0">x</text></g><g transform="translate(160 146)"><circle r="17" fill="#E8B43A"></circle><text y="7" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="19" fill="#1A1C20">2</text></g></svg></div><div style="--t:#232845"><svg viewBox="0 0 320 188"><ellipse cx="160" cy="176" rx="118" ry="8" fill="rgba(0,0,0,.22)"></ellipse>
+    <g transform="translate(88 96) rotate(-7)"><rect x="-36" y="-50" width="72" height="100" rx="10" fill="#E0663F"></rect><text x="-26" y="-32" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="700" font-size="11" fill="rgba(255,255,255,.85)">빨강</text><text x="0" y="18" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="46" letter-spacing="-2" fill="#fff">5</text></g>
+    <g transform="translate(168 98) rotate(4)"><rect x="-36" y="-50" width="72" height="100" rx="10" fill="#F4EFE4"></rect><rect x="-36" y="-50" width="72" height="100" rx="10" fill="none" stroke="#CFC6B3" stroke-dasharray="5 4" stroke-width="1.5"></rect><text x="0" y="16" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="42" fill="#B4AA96">?</text><circle cx="22" cy="34" r="10" fill="#B5473A"></circle></g>
+    <g transform="translate(250 72) rotate(8)"><path d="M-30 -24 H24 a8 8 0 0 1 8 8 V24 a8 8 0 0 1 -8 8 H-30 a8 8 0 0 1 -8 -8 V-16 a8 8 0 0 1 8 -8 Z" fill="#E8B43A"></path><circle cx="-28" cy="-14" r="3.2" fill="#232845"></circle><text x="0" y="16" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="34" letter-spacing="-1" fill="#1A1C20">9</text></g>
+    <g fill="none" stroke="rgba(244,244,240,.5)" stroke-width="2" stroke-linecap="round"><path d="M250 118 v28"></path><path d="M243 139 l7 7 7-7"></path></g></svg></div><div style="--t:#3A3531"><svg viewBox="0 0 320 188"><ellipse cx="160" cy="176" rx="100" ry="7" fill="rgba(0,0,0,.2)"></ellipse><g transform="rotate(-4 160 94)"><rect x="92" y="26" width="136" height="136" rx="6" fill="#ECF0E6"></rect><rect x="160" y="34" width="60" height="40" fill="#BFD6DB"></rect><path d="M100 34 V154 M100 34 H220" stroke="rgba(31,42,68,.12)" stroke-width="1"></path><path d="M120 34 V154 M100 54 H220" stroke="rgba(31,42,68,.12)" stroke-width="1"></path><path d="M140 34 V154 M100 74 H220" stroke="rgba(31,42,68,.12)" stroke-width="1"></path><path d="M160 34 V154 M100 94 H220" stroke="rgba(31,42,68,.12)" stroke-width="1"></path><path d="M180 34 V154 M100 114 H220" stroke="rgba(31,42,68,.12)" stroke-width="1"></path><path d="M200 34 V154 M100 134 H220" stroke="rgba(31,42,68,.12)" stroke-width="1"></path><path d="M220 34 V154 M100 154 H220" stroke="rgba(31,42,68,.12)" stroke-width="1"></path><path d="M110 144 V104 H150 V64 H190" fill="none" stroke="#2563D9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".9"></path><path d="M210 144 V124 H170 V84 H150 V44" fill="none" stroke="#E8761A" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".9"></path><circle cx="150" cy="84" r="11" fill="none" stroke="#1F2A44" stroke-width="3"></circle></g></svg></div></div>
   </header>
 
   <section class="games" id="games" aria-labelledby="games-title">
-    <h2 id="games-title">지금 할 수 있는 게임</h2>
+    <h2 id="games-title">게임</h2>
     <div class="grid">
-      <a class="game feat" href="sokssem/">
-        <div class="cover" style="background:radial-gradient(120% 90% at 50% 30%, #1D7360, #17604F 55%, #0F4638)">
-          <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-            <g transform="rotate(-7 63 68)"><rect x="36" y="30" width="54" height="76" rx="9" fill="#FFFDF6"/><text x="63" y="82" text-anchor="middle" font-family="Black Han Sans, Pretendard Variable, sans-serif" font-weight="900" font-size="38" fill="#8E4EC6">3</text></g><g transform="rotate(-2 125 60)"><rect x="98" y="22" width="54" height="76" rx="9" fill="#FFFDF6"/><text x="125" y="74" text-anchor="middle" font-family="Black Han Sans, Pretendard Variable, sans-serif" font-weight="900" font-size="38" fill="#E5484D">5</text></g><g transform="rotate(3 187 60)"><rect x="160" y="22" width="54" height="76" rx="9" fill="#FFFDF6"/><text x="187" y="74" text-anchor="middle" font-family="Black Han Sans, Pretendard Variable, sans-serif" font-weight="900" font-size="38" fill="#8E4EC6">1</text></g><g transform="rotate(8 249 68)"><rect x="222" y="30" width="54" height="76" rx="9" fill="#FFFDF6"/><text x="249" y="82" text-anchor="middle" font-family="Black Han Sans, Pretendard Variable, sans-serif" font-weight="900" font-size="38" fill="#2F6FED">4</text></g>
-            <ellipse cx="160" cy="182" rx="56" ry="9" fill="#0F4638"/><rect x="104" y="166" width="112" height="16" rx="8" fill="#3A332C"/><path d="M112 168 C 112 128, 134 110, 160 110 C 186 110, 208 128, 208 168 Z" fill="#EDB937" stroke="#B8861B" stroke-width="3"/><path d="M126 150 C 128 132, 140 122, 154 120" fill="none" stroke="#FFE08A" stroke-width="5" stroke-linecap="round" opacity=".8"/><circle cx="160" cy="104" r="7" fill="#EDB937" stroke="#B8861B" stroke-width="2.5"/>
-          </svg>
-        </div>
-        <div class="body">
-          <span class="new">새 게임</span>
-          <h3>속셈</h3>
-          <p>내 비밀 조건이 맞는 순간 종을 쳐요. 남이 언제 치는지 보고 속셈을 읽으면, 그걸로 먼저 쳐서 점수를 뺏어요.</p>
-          <div class="chips"><span>3–6명</span><span>3분</span><span>온라인</span><span>컴퓨터와 연습</span></div>
-          <span class="cta">플레이하기</span>
+      <a class="tile" href="sokssem/" style="--t:#1E4A3E">
+        <div class="tart" aria-hidden="true"><svg viewBox="0 0 320 188"><ellipse cx="160" cy="176" rx="120" ry="8" fill="rgba(0,0,0,.18)"></ellipse><g transform="translate(82 82) rotate(-12)"><rect x="-27" y="-38" width="54" height="76" rx="8" fill="#FBFAF6"></rect><rect x="-27" y="-38" width="54" height="76" rx="8" fill="none" stroke="rgba(0,0,0,.06)"></rect><text x="0" y="14" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="38" letter-spacing="-1.5" fill="#8650BF">3</text><g transform="translate(-21 -32) scale(.5)" fill="#8650BF"><path d="M10 1.2 L12.6 7.2 L19 7.7 L14.1 11.9 L15.6 18.3 L10 14.9 L4.4 18.3 L5.9 11.9 L1 7.7 L7.4 7.2 Z"></path></g></g><g transform="translate(132 70) rotate(-4)"><rect x="-27" y="-38" width="54" height="76" rx="8" fill="#FBFAF6"></rect><rect x="-27" y="-38" width="54" height="76" rx="8" fill="none" stroke="rgba(0,0,0,.06)"></rect><text x="0" y="14" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="38" letter-spacing="-1.5" fill="#D9453F">5</text><g transform="translate(-21 -32) scale(.5)" fill="#D9453F"><circle cx="10" cy="10" r="8"></circle></g></g><g transform="translate(188 70) rotate(4)"><rect x="-27" y="-38" width="54" height="76" rx="8" fill="#FBFAF6"></rect><rect x="-27" y="-38" width="54" height="76" rx="8" fill="none" stroke="rgba(0,0,0,.06)"></rect><text x="0" y="14" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="38" letter-spacing="-1.5" fill="#8650BF">1</text><g transform="translate(-21 -32) scale(.5)" fill="#8650BF"><path d="M10 1.2 L12.6 7.2 L19 7.7 L14.1 11.9 L15.6 18.3 L10 14.9 L4.4 18.3 L5.9 11.9 L1 7.7 L7.4 7.2 Z"></path></g></g><g transform="translate(238 82) rotate(12)"><rect x="-27" y="-38" width="54" height="76" rx="8" fill="#FBFAF6"></rect><rect x="-27" y="-38" width="54" height="76" rx="8" fill="none" stroke="rgba(0,0,0,.06)"></rect><text x="0" y="14" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="38" letter-spacing="-1.5" fill="#2F67D8">4</text><g transform="translate(-21 -32) scale(.5)" fill="#2F67D8"><path d="M10 1 L19 10 L10 19 L1 10 Z"></path></g></g><g transform="translate(118 104) scale(.42)"><defs><linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6D57E"></stop><stop offset=".55" stop-color="#E2B04A"></stop><stop offset="1" stop-color="#B9862A"></stop></linearGradient><linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B3631"></stop><stop offset="1" stop-color="#211E1B"></stop></linearGradient></defs><ellipse cx="100" cy="170" rx="80" ry="14" fill="rgba(0,0,0,.28)"></ellipse><rect x="22" y="142" width="156" height="24" rx="12" fill="url(#bg2)"></rect><path d="M34 146 C 34 80, 64 46, 100 46 C 136 46, 166 80, 166 146 Z" fill="url(#bg1)"></path><path d="M56 112 C 60 84, 76 66, 98 61" fill="none" stroke="#FFF1C7" stroke-width="7" stroke-linecap="round" opacity=".55"></path><rect x="92" y="28" width="16" height="20" rx="5" fill="#B9862A"></rect><circle cx="100" cy="25" r="9" fill="url(#bg1)"></circle></g></svg></div>
+        <div class="tbody">
+          <div class="tname"><h3>속셈</h3><span class="badge">새 게임</span></div>
+          <p>내 비밀 조건이 맞는 순간 종을 쳐요. 남의 속셈을 읽으면 그걸로 먼저 쳐서 점수를 뺏어요.</p>
+          <ul class="meta"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14.2c2.3.1 4 1.6 4.5 4.3"/></svg>3–6명</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>3분</li><li class="go">플레이</li></ul>
         </div>
       </a>
-      <a class="game" href="dream/">
-        <div class="cover" style="background:radial-gradient(120% 90% at 70% 0%, #273266, #121833 60%)">
-          <svg viewBox="0 0 320 200" aria-hidden="true"><circle cx="30" cy="30" r="1.6" fill="#F3EAD7" opacity="0.8"/><circle cx="90" cy="60" r="1.2" fill="#F3EAD7" opacity="0.6"/><circle cx="150" cy="22" r="1.4" fill="#F3EAD7" opacity="0.7"/><circle cx="250" cy="40" r="1.1" fill="#F3EAD7" opacity="0.5"/><circle cx="300" cy="90" r="1.5" fill="#F3EAD7" opacity="0.8"/><circle cx="40" cy="150" r="1.2" fill="#F3EAD7" opacity="0.5"/><circle cx="290" cy="170" r="1.3" fill="#F3EAD7" opacity="0.6"/><circle cx="200" cy="15" r="1" fill="#F3EAD7" opacity="0.5"/>
-            <circle cx="262" cy="46" r="24" fill="#F4D98A"/><circle cx="262" cy="46" r="34" fill="#F4D98A" opacity=".15"/>
-            <circle cx="78" cy="128" r="30" fill="#2F8C7A" stroke="#0B0F22" stroke-width="3"/><ellipse cx="68.4" cy="114.5" rx="8.4" ry="4.2" fill="#fff" opacity=".4" transform="rotate(-25 68.4 114.5)"/><circle cx="140" cy="104" r="26" fill="#D46A86" stroke="#0B0F22" stroke-width="3"/><ellipse cx="131.68" cy="92.3" rx="7.280000000000001" ry="3.6400000000000006" fill="#fff" opacity=".4" transform="rotate(-25 131.68 92.3)"/><circle cx="196" cy="132" r="28" fill="#D9572F" stroke="#0B0F22" stroke-width="3"/><ellipse cx="187.04" cy="119.4" rx="7.840000000000001" ry="3.9200000000000004" fill="#fff" opacity=".4" transform="rotate(-25 187.04 119.4)"/><circle cx="248" cy="112" r="22" fill="#3E58B0" stroke="#0B0F22" stroke-width="3"/><ellipse cx="240.96" cy="102.1" rx="6.16" ry="3.08" fill="#fff" opacity=".4" transform="rotate(-25 240.96 102.1)"/>
-            <g transform="rotate(-6 160 172)"><rect x="118" y="160" width="84" height="26" rx="6" fill="#F3EAD7" stroke="#1D1A16" stroke-width="2.5"/><rect x="118" y="168" width="84" height="8" fill="#C8412F"/></g>
-          </svg>
-        </div>
-        <div class="body">
-          <h3>꿈 사세요</h3>
-          <p>남의 꿈은 보이고 내 꿈은 여운만 남아요. 비밀 의뢰를 채우는 밤의 경매.</p>
-          <div class="chips"><span>3–5명</span><span>15–25분</span><span>온라인</span><span>컴퓨터와 연습</span></div>
-          <span class="cta">플레이하기</span>
+      <a class="tile" href="mijisu/" style="--t:#25303B">
+        <div class="tart" aria-hidden="true"><svg viewBox="0 0 320 188"><ellipse cx="160" cy="176" rx="118" ry="8" fill="rgba(0,0,0,.22)"></ellipse><g transform="translate(90 92) rotate(-9)"><rect x="-32" y="-45" width="64" height="90" rx="9" fill="#FBFAF6"></rect><text x="0" y="14" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="38" letter-spacing="-2" fill="#C8423C">7</text><text x="-22" y="-28" font-size="12" fill="#C8423C">♥</text></g><g transform="translate(230 92) rotate(9)"><rect x="-32" y="-45" width="64" height="90" rx="9" fill="#FBFAF6"></rect><text x="0" y="14" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="38" letter-spacing="-2" fill="#25303B">12</text><text x="-22" y="-28" font-size="12" fill="#25303B">♠</text></g><g transform="translate(160 82) rotate(0)"><rect x="-32" y="-45" width="64" height="90" rx="9" fill="#34465A"></rect><text x="0" y="16" text-anchor="middle" font-family="Georgia, Times New Roman, serif" font-style="italic" font-weight="700" font-size="44" fill="#F4F4F0">x</text></g><g transform="translate(160 146)"><circle r="17" fill="#E8B43A"></circle><text y="7" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="19" fill="#1A1C20">2</text></g></svg></div>
+        <div class="tbody">
+          <div class="tname"><h3>미지수</h3></div>
+          <p>남의 숫자는 다 보이는데 내 숫자만 몰라요. 친구들의 답으로 내 숫자를 풀어내세요.</p>
+          <ul class="meta"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14.2c2.3.1 4 1.6 4.5 4.3"/></svg>3–5명</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>10분</li><li class="go">플레이</li></ul>
         </div>
       </a>
-      <a class="game" href="market/">
-        <div class="cover" style="background:#1B1F3B">
-          <svg viewBox="0 0 320 200" aria-hidden="true">
-            <rect x="70" y="50" width="70" height="96" rx="11" fill="#E4572E"/><text x="105" y="112" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="40" fill="#fff">5</text>
-            <text x="160" y="108" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="28" fill="#FFF8EC" opacity=".7">+</text>
-            <rect x="180" y="50" width="70" height="96" rx="11" fill="#FFF8EC" stroke="#1A1A22" stroke-width="3" stroke-dasharray="7 5"/><text x="215" y="112" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="40" fill="#1A1A22">?</text>
-            <g transform="rotate(-8 262 40)"><rect x="226" y="18" width="72" height="44" rx="10" fill="#FFC53D" stroke="#1A1A22" stroke-width="3"/><text x="262" y="50" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="26" fill="#1A1A22">9</text></g>
-          </svg>
-        </div>
-        <div class="body">
-          <h3>깜깜이 시장</h3>
+      <a class="tile" href="market/" style="--t:#232845">
+        <div class="tart" aria-hidden="true"><svg viewBox="0 0 320 188"><ellipse cx="160" cy="176" rx="118" ry="8" fill="rgba(0,0,0,.22)"></ellipse>
+    <g transform="translate(88 96) rotate(-7)"><rect x="-36" y="-50" width="72" height="100" rx="10" fill="#E0663F"></rect><text x="-26" y="-32" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="700" font-size="11" fill="rgba(255,255,255,.85)">빨강</text><text x="0" y="18" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="46" letter-spacing="-2" fill="#fff">5</text></g>
+    <g transform="translate(168 98) rotate(4)"><rect x="-36" y="-50" width="72" height="100" rx="10" fill="#F4EFE4"></rect><rect x="-36" y="-50" width="72" height="100" rx="10" fill="none" stroke="#CFC6B3" stroke-dasharray="5 4" stroke-width="1.5"></rect><text x="0" y="16" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="42" fill="#B4AA96">?</text><circle cx="22" cy="34" r="10" fill="#B5473A"></circle></g>
+    <g transform="translate(250 72) rotate(8)"><path d="M-30 -24 H24 a8 8 0 0 1 8 8 V24 a8 8 0 0 1 -8 8 H-30 a8 8 0 0 1 -8 -8 V-16 a8 8 0 0 1 8 -8 Z" fill="#E8B43A"></path><circle cx="-28" cy="-14" r="3.2" fill="#232845"></circle><text x="0" y="16" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="34" letter-spacing="-1" fill="#1A1C20">9</text></g>
+    <g fill="none" stroke="rgba(244,244,240,.5)" stroke-width="2" stroke-linecap="round"><path d="M250 118 v28"></path><path d="M243 139 l7 7 7-7"></path></g></svg></div>
+        <div class="tbody">
+          <div class="tname"><h3>깜깜이 시장</h3></div>
           <p>내 물건 값만 나만 몰라요. 가격은 계속 떨어지고, 먼저 치는 사람이 임자예요.</p>
-          <div class="chips"><span>3–5명</span><span>10–20분</span><span>온라인</span><span>컴퓨터와 연습</span></div>
-          <span class="cta">플레이하기</span>
+          <ul class="meta"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14.2c2.3.1 4 1.6 4.5 4.3"/></svg>3–5명</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>10–20분</li><li class="go">플레이</li></ul>
         </div>
       </a>
-      <a class="game" href="mijisu/">
-        <div class="cover" style="background:#1E4D3B">
-          <svg viewBox="0 0 320 200" aria-hidden="true">
-            <g transform="rotate(-8 92 100)"><rect x="60" y="52" width="64" height="88" rx="9" fill="#FFFBF2"/><text x="92" y="110" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="34" fill="#D23B3B">7</text></g>
-            <g><rect x="128" y="44" width="64" height="88" rx="9" fill="#2F6B57" stroke="#FFFBF2" stroke-width="3"/><text x="160" y="102" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="40" font-style="italic" font-family="Georgia, serif" fill="#FFFBF2">x</text></g>
-            <g transform="rotate(8 228 100)"><rect x="196" y="52" width="64" height="88" rx="9" fill="#FFFBF2"/><text x="228" y="110" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="34" fill="#1B1A17">12</text></g>
-            <circle cx="160" cy="160" r="17" fill="#F2B632"/><text x="160" y="167" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-weight="900" font-size="20" fill="#1B1A17">2</text></svg>
-        </div>
-        <div class="body">
-          <h3>미지수</h3>
-          <p>남의 숫자는 다 보이는데 내 숫자만 몰라요. 친구들의 답으로 내 숫자를 풀어내고 먼저 외치세요.</p>
-          <div class="chips"><span>3–5명</span><span>10분</span><span>온라인</span><span>컴퓨터와 연습</span></div>
-          <span class="cta">플레이하기</span>
-        </div>
-      </a>
-      <a class="game" href="overlap/">
-        <div class="cover" style="background:#E8EEE3">
-          <svg viewBox="0 0 320 200" aria-hidden="true"><defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#1F2A44" stroke-opacity=".1"/></pattern></defs><rect width="320" height="200" fill="url(#g)"/>
-            <g style="mix-blend-mode:multiply"><rect x="44" y="30" width="140" height="140" rx="8" fill="#2563D9" fill-opacity=".12" stroke="#2563D9" stroke-width="2" transform="rotate(-6 114 100)"/><rect x="136" y="28" width="140" height="140" rx="8" fill="#E8761A" fill-opacity=".12" stroke="#E8761A" stroke-width="2" transform="rotate(5 206 98)"/>
-            <path d="M72 150 V112 H112 V74 H168" fill="none" stroke="#2563D9" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M248 150 V112 H208 V74 H168" fill="none" stroke="#E8761A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></g>
-            <circle cx="168" cy="74" r="17" fill="none" stroke="#1F2A44" stroke-width="3"/></svg>
-        </div>
-        <div class="body">
-          <h3>OVERLAP</h3>
+      <a class="tile" href="overlap/" style="--t:#3A3531">
+        <div class="tart" aria-hidden="true"><svg viewBox="0 0 320 188"><ellipse cx="160" cy="176" rx="100" ry="7" fill="rgba(0,0,0,.2)"></ellipse><g transform="rotate(-4 160 94)"><rect x="92" y="26" width="136" height="136" rx="6" fill="#ECF0E6"></rect><rect x="160" y="34" width="60" height="40" fill="#BFD6DB"></rect><path d="M100 34 V154 M100 34 H220" stroke="rgba(31,42,68,.12)" stroke-width="1"></path><path d="M120 34 V154 M100 54 H220" stroke="rgba(31,42,68,.12)" stroke-width="1"></path><path d="M140 34 V154 M100 74 H220" stroke="rgba(31,42,68,.12)" stroke-width="1"></path><path d="M160 34 V154 M100 94 H220" stroke="rgba(31,42,68,.12)" stroke-width="1"></path><path d="M180 34 V154 M100 114 H220" stroke="rgba(31,42,68,.12)" stroke-width="1"></path><path d="M200 34 V154 M100 134 H220" stroke="rgba(31,42,68,.12)" stroke-width="1"></path><path d="M220 34 V154 M100 154 H220" stroke="rgba(31,42,68,.12)" stroke-width="1"></path><path d="M110 144 V104 H150 V64 H190" fill="none" stroke="#2563D9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".9"></path><path d="M210 144 V124 H170 V84 H150 V44" fill="none" stroke="#E8761A" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".9"></path><circle cx="150" cy="84" r="11" fill="none" stroke="#1F2A44" stroke-width="3"></circle></g></svg></div>
+        <div class="tbody">
+          <div class="tname"><h3>OVERLAP</h3></div>
           <p>몰래 그린 길을 한꺼번에 겹쳐요. 부딪힌 칸은 먼저 도착한 사람의 것.</p>
-          <div class="chips"><span>2–6명</span><span>15–20분</span><span>온라인</span><span>컴퓨터와 연습</span></div>
-          <span class="cta">플레이하기</span>
+          <ul class="meta"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14.2c2.3.1 4 1.6 4.5 4.3"/></svg>2–6명</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>15–20분</li><li class="go">플레이</li></ul>
         </div>
       </a>
     </div>
@@ -232,15 +135,15 @@ footer a { text-decoration: none; color: var(--ink-2); }
   <section class="how" id="how" aria-labelledby="how-title">
     <h2 id="how-title">함께하는 법</h2>
     <ol class="steps">
-      <li><b>방 만들기</b><span>게임을 고르고 ‘친구랑 방 만들기’를 눌러요. 혼자라면 컴퓨터와 바로 할 수 있어요.</span></li>
-      <li><b>링크 보내기</b><span>초대 링크를 단톡방에 보내요. 코드만 불러 줘도 돼요.</span></li>
-      <li><b>각자 폰으로 참가</b><span>친구들은 링크를 열고 닉네임만 정하면 들어와요.</span></li>
+      <li><b>게임 고르기</b><span>‘친구와 하기’에서 방을 만들어요. 혼자라면 컴퓨터와 바로 시작해요.</span></li>
+      <li><b>링크 보내기</b><span>초대 링크를 단톡방에 보내요. 방 코드만 불러 줘도 돼요.</span></li>
+      <li><b>각자 폰으로</b><span>친구들은 링크를 열고 이름만 정하면 같은 판에 들어와요.</span></li>
     </ol>
   </section>
 
   <footer>
     <span>© 2026 놀이판</span>
-    <span><a href="sokssem/">속셈</a> · <a href="dream/">꿈 사세요</a> · <a href="market/">깜깜이 시장</a> · <a href="mijisu/">미지수</a> · <a href="overlap/">OVERLAP</a></span>
+    <nav aria-label="게임 바로가기"><a href="sokssem/">속셈</a><a href="mijisu/">미지수</a><a href="market/">깜깜이 시장</a><a href="overlap/">OVERLAP</a></nav>
   </footer>
 </div>
 <script>
@@ -250,17 +153,16 @@ footer a { text-decoration: none; color: var(--ink-2); }
   f.addEventListener('submit', function (e) {
     e.preventDefault();
     var c = input.value.replace(/\D/g, '');
-    if (c.length !== 4) { msg.textContent = '4자리 코드를 입력하세요.'; input.focus(); return; }
+    if (c.length !== 4) { msg.textContent = '방 코드 4자리를 입력하세요.'; input.focus(); return; }
     var n = +c;
     if (n >= 1000 && n <= 1999) location.href = 'overlap/?room=' + c;
     else if (n >= 2000 && n <= 2999) location.href = 'sokssem/?room=' + c;
-    else if (n >= 3000 && n <= 3999) location.href = 'dream/?room=' + c;
     else if (n >= 4000 && n <= 6999) location.href = 'mijisu/?room=' + c;
     else if (n >= 7000 && n <= 9999) location.href = 'market/?room=' + c;
     else { msg.textContent = '없는 방 코드예요. 다시 확인해 주세요.'; input.focus(); }
   });
 })();
 </script>
-<script src="shared/inapp.js?v=20261123a" defer></script>
+<script src="shared/inapp.js?v=20261126d" defer></script>
 </body>
 </html>

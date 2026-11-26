@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>OVERLAP · 놀이판</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<link rel="stylesheet" href="../shared/brand.css?v=20261120b">
+<link rel="stylesheet" href="../shared/brand.css?v=20261126d">
 <meta name="description" content="몰래 그린 길을 한꺼번에 겹쳐요. 부딪힌 칸은 먼저 도착한 사람의 것. 2–6명, 15분.">
 <meta property="og:title" content="OVERLAP · 놀이판">
 <meta property="og:description" content="몰래 그린 길을 한꺼번에 겹쳐요. 부딪힌 칸은 먼저 도착한 사람의 것.">
 <meta property="og:image" content="../assets/og-overlap.png">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#2E5B49">
+<meta name="theme-color" content="#ECEDE8">
 <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="../assets/icon-180.png">
 <link rel="manifest" href="../manifest.webmanifest">
@@ -228,6 +228,69 @@ h1, h2, h3 { font-family: var(--display); font-weight: 800; margin: 0; text-wrap
 .btn-primary { box-shadow: none; }
 .btn-primary:active { transform: scale(.98); box-shadow: none; }
 
+
+/* ===== 놀이판 system skin (matches shared/ui.css) ===== */
+:root { --mat: #3A3531; --mat-line: rgba(255,255,255,.04); --paper: #ECF0E6; --sys-bg: #ECEDE8; --sys-fill: #F1F2EE; --sys-fill-2: #E6E8E2; --sys-ink: #1A1C20; --sys-ink-2: #4A4F57; --sys-ink-3: #868B92; --sys-line: #DCDED7; }
+body { background-color: var(--mat); background-size: 28px 28px; -webkit-font-smoothing: antialiased; font-size: 16px; word-break: keep-all; }
+body.ov-menu { background: var(--sys-bg); color: var(--sys-ink); }
+.title { display: block; flex: none; padding: 10px 16px 28px; width: 100%; max-width: 560px; margin: 0 auto; }
+.ov-top { width: 100%; display: flex; align-items: center; justify-content: space-between; height: 48px; margin-bottom: 8px; }
+.ov-top .brand { margin: 0; opacity: 1; }
+.ov-ib { width: 38px; height: 38px; border-radius: 50%; border: 0; padding: 0; display: grid; place-items: center; background: var(--sys-fill); color: var(--sys-ink); }
+.ov-ib svg { width: 18px; height: 18px; }
+.ov-cover { border-radius: 24px; background: var(--mat); color: #F4F4F0; padding: 24px 22px 22px; margin-bottom: 10px; }
+.ov-cover .art { height: 188px; margin: 4px -6px 14px; } .ov-cover .art svg { width: 100%; height: 100%; display: block; }
+.ov-cover h1 { font-size: 44px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.05; color: #F4F4F0; }
+.ov-cover .pitch { margin: 10px 0 0; color: rgba(244,244,240,.65); font-size: 16px; line-height: 1.55; }
+.ov-cover .meta { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 16px 0 0; padding: 0; list-style: none; font-size: 14px; font-weight: 600; }
+.ov-cover .meta li { display: inline-flex; align-items: center; gap: 6px; } .ov-cover .meta svg { width: 16px; height: 16px; opacity: .7; display: block; }
+.title-sheet { background: #fff; color: var(--sys-ink); border-radius: 24px; padding: 22px 20px; box-shadow: none; width: 100%; }
+.title-sheet .field { gap: 8px; margin-bottom: 18px; }
+.title-sheet .field > label, .title-sheet .field > .lab { color: var(--sys-ink-2); }
+.screen-title { font-size: 22px; margin: 0 0 18px; }
+.title-sheet .seg, .box .seg { display: flex; flex-wrap: nowrap; gap: 2px; padding: 3px; border-radius: 13px; background: var(--sys-fill); }
+.title-sheet .seg button, .box .seg button { flex: 1 1 0; min-width: 0; border: 0; border-radius: 10px; padding: 0 4px; min-height: 40px; background: none; color: var(--sys-ink-2); font-weight: 600; font-size: 14px; white-space: nowrap; }
+.title-sheet .seg button[aria-pressed="true"], .box .seg button[aria-pressed="true"] { background: #fff; color: var(--sys-ink); font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 0 0 .5px rgba(0,0,0,.04); }
+.title-sheet .row { flex-wrap: nowrap; gap: 8px; }
+.btn { height: 54px; min-height: 54px; padding: 0 18px; border: 0; border-radius: 14px; font-weight: 700; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; transition: transform .08s; }
+.btn:active:not([disabled]) { transform: scale(.985); }
+.btn-primary { background: var(--sys-ink); color: #fff; box-shadow: none; }
+.btn-ghost { background: var(--sys-fill); color: var(--sys-ink); border: 0; }
+.title-sheet .row .btn { flex: 1 1 0; min-width: 0; padding: 0 8px; }
+.btn-text { background: none; color: var(--sys-ink-2); }
+.toggle { font-weight: 600; } .toggle input { accent-color: var(--sys-ink); }
+.namefield input, #nick, #code { border: 0; background: var(--sys-fill); border-radius: 12px; height: 52px; min-height: 52px; padding: 0 16px; font-size: 17px; font-weight: 600; max-width: none; }
+.namefield input:focus, #nick:focus, #code:focus { outline: 2px solid #2E63D6; background: #fff; }
+#code { max-width: 140px; text-align: center; letter-spacing: .3em; }
+.block { border-bottom-color: var(--sys-line); justify-items: stretch; }
+.roomcode { flex-direction: column; align-items: center; gap: 0; margin-bottom: 14px; }
+.roomcode span { font-size: 13px; color: var(--sys-ink-3); font-weight: 600; }
+.roomcode b { font-family: inherit; font-weight: 800; letter-spacing: .12em; }
+.fine, .waitline { color: var(--sys-ink-3); }
+.tag { background: var(--sys-fill); }
+
+/* in-game */
+.topbar h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
+.iconbtn { border: 0; background: rgba(255,255,255,.1); border-radius: 50%; width: 38px; height: 38px; min-width: 38px; min-height: 38px; padding: 0; display: inline-grid; place-items: center; }
+.iconbtn svg { width: 18px; height: 18px; }
+.sheet { border-radius: 14px; box-shadow: 0 1px 0 rgba(0,0,0,.15), 0 14px 30px rgba(0,0,0,.25); }
+.dock, .box { border-radius: 18px; box-shadow: none; background: #fff; }
+.ecard { border-radius: 10px; font-weight: 800; box-shadow: none; }
+.chip { border: 0; background: var(--sys-fill); font-weight: 600; }
+.chip[aria-pressed="true"] { background: var(--sys-ink); color: #fff; }
+.overlap-btn { border-radius: 14px; box-shadow: none; font-weight: 800; letter-spacing: -0.01em; font-size: 18px; }
+.overlap-btn:active { transform: scale(.985); box-shadow: none; }
+.modal-bg { background: rgba(12,14,18,.5); }
+.modal { border-radius: 24px; background: #fff; box-shadow: 0 30px 60px rgba(0,0,0,.3); padding: 24px 22px; }
+.modal h2 { font-size: 22px; letter-spacing: -0.035em; }
+.choice button { border: 0; background: var(--sys-fill); border-radius: 14px; padding: 14px; }
+.choice button:hover { background: var(--sys-fill-2); }
+.tablebtn { border: 0; background: var(--sys-fill); border-radius: 14px; }
+.coach { border-radius: 16px; background: var(--sys-ink); }
+.coach button { border-radius: 10px; }
+.meter i { border-width: 1.5px; border-radius: 4px; }
+.cover { border-radius: 14px; }
+.toast { border-radius: 999px; font-weight: 600; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 }
@@ -244,12 +307,12 @@ h1, h2, h3 { font-family: var(--display); font-weight: 800; margin: 0; text-wrap
   </defs>
 </svg>
 <div id="app"></div>
-<script src="../vendor/peerjs.min.js?v=20261120b"></script>
-<script src="../shared/net.js?v=20261120b"></script>
-<script src="../shared/sfx.js?v=20261120b"></script>
-<script src="engine.js?v=20261120b"></script>
-<script src="data.js?v=20261120b"></script>
-<script src="app.js?v=20261120b"></script>
-<script src="../shared/inapp.js?v=20261123a" defer></script>
+<script src="../vendor/peerjs.min.js?v=20261126d"></script>
+<script src="../shared/net.js?v=20261126d"></script>
+<script src="../shared/sfx.js?v=20261126d"></script>
+<script src="engine.js?v=20261126d"></script>
+<script src="data.js?v=20261126d"></script>
+<script src="app.js?v=20261126d"></script>
+<script src="../shared/inapp.js?v=20261126d" defer></script>
 </body>
 </html>

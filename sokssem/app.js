@@ -41,12 +41,10 @@
   function condText(k) { const C = COND[k]; return C.t === 'c' ? `${CN[C.c]} 2장 이상` : C.t === 'n' ? `숫자 ${C.n}가 2장 이상`.replace('1가', '1이').replace('3가', '3이').replace('5가', '5가') : C.t === 'even' ? '짝수 3장 이상' : C.t === 'dn' ? '숫자가 모두 달라요' : '색이 모두 달라요'; }
   function condEl(k) { const C = COND[k]; return h('span', { class: 'chip' }, C.t === 'c' ? h('span', { html: shapeSVG(C.c) }) : null, condText(k)); }
   function condHelp(k) { const C = COND[k]; return C.t === 'c' ? `${CN[C.c]} 카드가 2장 이상 깔리면` : C.t === 'n' ? `숫자 ${C.n} 카드가 2장 이상 깔리면` : C.t === 'even' ? '2와 4 카드가 합쳐서 3장 이상이면' : C.t === 'dn' ? '네 장의 숫자가 전부 다르면' : '네 장의 색이 전부 다르면'; }
-  const BELL = '<svg viewBox="0 0 200 200" aria-hidden="true"><ellipse cx="100" cy="168" rx="86" ry="20" fill="#0F4638"/><rect x="14" y="140" width="172" height="28" rx="14" fill="#2A2520"/><rect x="14" y="138" width="172" height="20" rx="10" fill="#3A332C"/><path d="M28 142 C 28 70, 62 38, 100 38 C 138 38, 172 70, 172 142 Z" fill="#EDB937"/><path d="M28 142 C 28 70, 62 38, 100 38 C 138 38, 172 70, 172 142 Z" fill="none" stroke="#B8861B" stroke-width="4"/><path d="M50 108 C 54 76, 74 56, 98 52" fill="none" stroke="#FFE08A" stroke-width="9" stroke-linecap="round" opacity=".75"/><rect x="90" y="18" width="20" height="24" rx="6" fill="#B8861B"/><circle cx="100" cy="16" r="10" fill="#EDB937" stroke="#B8861B" stroke-width="3"/></svg>';
+  const BELL = '<svg viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6D57E"/><stop offset=".55" stop-color="#E2B04A"/><stop offset="1" stop-color="#B9862A"/></linearGradient><linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B3631"/><stop offset="1" stop-color="#211E1B"/></linearGradient></defs><ellipse cx="100" cy="170" rx="80" ry="14" fill="rgba(0,0,0,.28)"/><rect x="22" y="142" width="156" height="24" rx="12" fill="url(#bg2)"/><path d="M34 146 C 34 80, 64 46, 100 46 C 136 46, 166 80, 166 146 Z" fill="url(#bg1)"/><path d="M56 112 C 60 84, 76 66, 98 61" fill="none" stroke="#FFF1C7" stroke-width="7" stroke-linecap="round" opacity=".55"/><rect x="92" y="28" width="16" height="20" rx="5" fill="#B9862A"/><circle cx="100" cy="25" r="9" fill="url(#bg1)"/></svg>';
 
-  const AV = ['#F6C28B', '#A8D5E2', '#F4A6A6', '#C9B6E4', '#B8E0B0', '#F2E394'];
-  const avEl = (st, i, lg) => h('span', { class: 'av' + (lg ? ' lg' : ''), style: `--a:${AV[i % AV.length]}`, 'aria-hidden': 'true' }, Array.from(st.players[i].name)[0]);
+  const avEl = (st, i, lg) => U.avatar(st.players[i].name, i, lg ? 'lg' : 'sm');
   const pipsEl = n => h('span', { class: 'pips', 'aria-hidden': 'true' }, Array.from({ length: WIN }, (_, k) => h('i', { class: k < n ? 'on' : null })));
-  const IC = { help: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9.2 9a3 3 0 1 1 4.2 2.8c-.9.4-1.4 1.1-1.4 2.1v.4"/><circle cx="12" cy="18" r=".6" fill="currentColor"/></svg>', on: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>', off: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg>', exit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>' };
   const app = document.getElementById('app');
   let S = Object.assign({ nick: '', speed: 'normal' }, store('settings') || {});
   const save = () => store('settings', S);
@@ -57,54 +55,25 @@
   // ============================================================
   // MENU
   // ============================================================
-  function brand() { return h('a', { class: 'brand', href: '../', 'aria-label': '놀이판 홈' }, h('span', { class: 'brand-mark', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')), '놀이판'); }
-  function speedSeg() { const wrap = h('div', { class: 'seg', role: 'radiogroup', 'aria-label': '속도' }); const draw = () => { wrap.innerHTML = ''; Object.entries(SPEEDS).forEach(([k, v]) => wrap.append(h('button', { type: 'button', role: 'radio', 'aria-checked': S.speed === k ? 'true' : 'false', class: S.speed === k ? 'on' : null, onclick: () => { S.speed = k; save(); draw(); } }, v.label))); }; draw(); return wrap; }
+  const U = window.NoliUI;
+  const COVER = (() => { const c = (x, y, r, col, n, shape) => `<g transform="translate(${x} ${y}) rotate(${r})"><rect x="-27" y="-38" width="54" height="76" rx="8" fill="#FBFAF6"/><rect x="-27" y="-38" width="54" height="76" rx="8" fill="none" stroke="rgba(0,0,0,.06)"/><text x="0" y="14" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="38" letter-spacing="-1.5" fill="${col}">${n}</text><g transform="translate(-21 -32) scale(.5)" fill="${col}">${SHAPES[shape]}</g></g>`;
+    return `<svg viewBox="0 0 320 188"><ellipse cx="160" cy="176" rx="120" ry="8" fill="rgba(0,0,0,.18)"/>${c(82, 82, -12, '#8650BF', 3, 4)}${c(132, 70, -4, '#D9453F', 5, 0)}${c(188, 70, 4, '#8650BF', 1, 4)}${c(238, 82, 12, '#2F67D8', 4, 3)}<g transform="translate(118 104) scale(.42)">${BELL.replace(/^<svg[^>]*>/, '').replace('</svg>', '')}</g></svg>`; })();
+  function speedSeg() { return U.field('속도', U.seg(Object.entries(SPEEDS).map(([k, v]) => [k, v.label]), S.speed, k => { S.speed = k; save(); }, '속도'), h('p', { class: 'hint' }, '카드가 바뀌는 빠르기와 컴퓨터의 반응이 함께 달라져요.')); }
   function rulesList() {
     return h('ol', { class: 'rules' },
-      h('li', null, h('div', null, h('b', null, '모두 비밀 조건을 하나씩 받아요'), h('span', null, '예를 들면 "보라 2장 이상", "숫자가 모두 달라요" 같은 조건이에요. 내 조건은 나만 알아요.'))),
-      h('li', null, h('div', null, h('b', null, '카드 네 장 중 한 장씩 계속 바뀌어요'), h('span', null, '내 조건이 맞는 순간 종을 치면 +1점이에요. 틀리게 치면 −1점이에요.'))),
-      h('li', null, h('div', null, h('b', null, '남의 속셈을 읽어요'), h('span', null, '누가 종을 칠 때마다 그 순간의 카드가 그 사람 칸에 남아요. 조건을 눈치챘으면, 그 조건이 맞는 순간 그 사람 칸을 누르세요. 맞으면 +2점이고, 들킨 사람은 조건을 새로 받아요.'))),
-      h('li', null, h('div', null, h('b', null, `${WIN}점을 먼저 내면 이겨요`), h('span', null, '한 판에 3분 정도예요.'))));
+      h('li', null, h('div', null, h('b', null, '모두 비밀 조건을 하나씩 받아요'), h('span', null, '"보라 2장 이상", "숫자가 모두 달라요" 같은 조건이에요. 내 조건은 나만 알아요.'))),
+      h('li', null, h('div', null, h('b', null, '카드 네 장 중 한 장씩 계속 바뀌어요'), h('span', null, '내 조건이 맞는 순간 종을 치면 1점, 틀리게 치면 1점을 잃어요.'))),
+      h('li', null, h('div', null, h('b', null, '남의 속셈을 읽어요'), h('span', null, '누가 종을 치면 그 순간의 카드가 그 사람 칸에 남아요. 겹치는 점을 찾았으면, 그 조건이 맞는 순간 그 사람 칸을 누르세요. 맞으면 2점이고, 들킨 사람은 조건을 새로 받아요.'))),
+      h('li', null, h('div', null, h('b', null, `${WIN}점을 먼저 내면 이겨요`), h('span', null, '한 판은 3분 안팎이에요.'))));
   }
-  function openRules() {
-    const m = h('div', { class: 'modal', onclick: e => { if (e.target === m) m.remove(); } },
-      h('div', { class: 'sheet', role: 'dialog', 'aria-label': '규칙' }, h('h2', null, '속셈 규칙'), rulesList(),
-        h('div', { class: 'row', style: 'margin-top:16px' }, h('button', { class: 'btn', type: 'button', onclick: () => { S.tips = !tipsOn(); save(); m.remove(); if (ON.st) render(); } }, tipsOn() ? '도움말 끄기' : '도움말 다시 보기'), h('button', { class: 'btn btn-primary', type: 'button', onclick: () => m.remove() }, '닫기'))));
-    document.body.append(m);
-  }
+  function openRules() { U.rulesSheet({ title: '속셈 규칙', body: rulesList(), tipsOn: tipsOn(), toggleTips: ON.st ? () => { S.tips = !tipsOn(); save(); render(); } : null }); }
   function showTitle(prefill) {
     leaveRoom();
-    const nick = h('input', { id: 'nick', type: 'text', maxlength: '8', value: S.nick || '', placeholder: '닉네임', autocomplete: 'nickname', oninput: e => { S.nick = e.target.value; save(); } });
-    const code = h('input', { id: 'code', type: 'text', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '4', placeholder: '0000', value: prefill || '' });
-    const msg = h('p', { class: 'msg', role: 'alert' });
-    const ok = window.NoliNet && window.NoliNet.available();
-    const busy = (b, on, l) => { b.disabled = on; if (on) { b.dataset.l = b.textContent; b.textContent = l; } else if (b.dataset.l) b.textContent = b.dataset.l; };
-    const needNick = () => { if (!cleanName(S.nick, '')) { msg.textContent = '닉네임을 입력하세요.'; nick.focus(); return true; } return false; };
-    const fail = er => er && er.type === 'not-found' ? '방을 찾을 수 없어요. 코드를 다시 확인해 주세요.' : er && er.type === 'timeout' ? '방은 찾았는데 연결이 안 됐어요. 방장 화면이 켜져 있는지 확인하고, 두 폰을 같은 와이파이에 연결하면 대부분 바로 돼요.' : '연결하지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.';
-    const create = h('button', { class: 'btn', type: 'button', disabled: !ok, onclick: async e => { if (needNick()) return; const b = e.currentTarget; busy(b, true, '만드는 중'); try { ON.room = await window.NoliNet.create('ss', CODE_LO, CODE_HI); ON.isHost = true; afterJoin(); } catch (er) { busy(b, false); msg.textContent = '방을 만들지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.'; } } }, '친구랑 방 만들기');
-    const join = h('button', { class: 'btn', type: 'button', disabled: !ok, onclick: async e => { if (needNick()) return; const c = code.value.replace(/\D/g, ''); if (c.length !== 4) { msg.textContent = '4자리 방 코드를 입력하세요.'; code.focus(); return; } const b = e.currentTarget; busy(b, true, '연결 중'); try { ON.room = await window.NoliNet.join('ss', c); ON.isHost = false; afterJoin(); } catch (er) { busy(b, false); msg.textContent = fail(er); } } }, '참가하기');
-    code.addEventListener('keydown', e => { if (e.key === 'Enter') join.click(); });
-    const demo = [{ c: 4, n: 3, r: '-6deg' }, { c: 0, n: 5, r: '-2deg' }, { c: 4, n: 1, r: '3deg' }, { c: 3, n: 4, r: '7deg' }];
-    app.innerHTML = '';
-    app.append(
-      h('div', { class: 'top' }, brand(), h('span')),
-      h('div', { class: 'hero' },
-        h('div', { class: 'hero-table', 'aria-hidden': 'true' }, demo.map(d => { const el = cardEl(d); el.style.setProperty('--r', d.r); return el; })),
-        h('div', { class: 'hero-bell', 'aria-hidden': 'true', html: BELL }),
-        h('h1', null, '속셈'), h('p', { class: 'sub' }, '내 비밀 조건이 맞는 순간 종을 쳐요. 남의 속셈을 읽으면 그걸로 먼저 쳐서 점수를 뺏어요.'),
-        h('div', { class: 'meta' }, h('span', null, '3–6명'), h('span', null, '한 판 3분'), h('span', null, '설치 없음'))),
-      h('div', { class: 'sheet' },
-        h('div', { class: 'field' }, h('label', { for: 'nick' }, '닉네임'), nick),
-        h('div', { class: 'field' }, h('label', null, '속도'), speedSeg()),
-        prefill ? null : h('div', { class: 'row' }, h('button', { class: 'btn btn-brass btn-big', type: 'button', onclick: () => { if (needNick()) return; startSolo(3); } }, '컴퓨터 3명과 바로 하기')),
-        prefill ? null : h('div', { class: 'row', style: 'margin-top:8px' }, create),
-        prefill ? null : h('hr'),
-        h('div', { class: 'field' }, h('label', { for: 'code' }, prefill ? '초대받은 방' : '방 코드로 참가'), h('div', { class: 'row' }, code, join)),
-        msg,
-        prefill ? h('button', { class: 'btn-text', type: 'button', onclick: () => { history.replaceState(null, '', location.pathname); showTitle(); } }, '처음으로') : null,
-        h('details', { class: 'howto' }, h('summary', null, '처음이라면 규칙 보기 (1분)'), rulesList())));
-    window.scrollTo(0, 0);
-    if (prefill) (S.nick ? join : nick).focus();
+    U.entry({ app, name: '속셈', pitch: '내 비밀 조건이 맞는 순간 종을 쳐요. 남이 언제 치는지 보고 속셈을 읽으면, 그걸로 먼저 쳐서 점수를 뺏어요.',
+      meta: [['people', '3–6명'], ['clock', '3분'], ['bolt', '순발력과 추리']], art: COVER,
+      getNick: () => S.nick, setNick: v => { S.nick = v; save(); }, settings: [speedSeg()], soloLabel: '컴퓨터 3명과 시작', onSolo: () => startSolo(3),
+      net: { id: 'ss', lo: CODE_LO, hi: CODE_HI }, onRoom: (room, host) => { ON.room = room; ON.isHost = host; afterJoin(); },
+      onRules: openRules, prefill, onHome: () => { history.replaceState(null, '', location.pathname); showTitle(); } });
   }
 
   // ============================================================
@@ -114,8 +83,7 @@
   const hostId = () => ON.isHost ? ON.room.me : ON.room.hostId;
   function toHost(m) { if (ON.room) ON.room.send(hostId(), m); }
   function members() { return ON.peers.filter(p => !p.away).sort((a, b) => ((a.presence || {}).joinedAt || 0) - ((b.presence || {}).joinedAt || 0)); }
-  function sheetOnly(...kids) { app.innerHTML = ''; app.append(h('div', { class: 'top' }, brand(), h('span')), h('div', { class: 'sheet' }, ...kids)); window.scrollTo(0, 0); }
-  function roomClosed() { try { ON.room && ON.room.leave(); } catch (e) { } ON.room = null; ON.st = null; history.replaceState(null, '', location.pathname); sheetOnly(h('h2', null, '방이 닫혔어요'), h('p', { class: 'fine', style: 'font-size:15px' }, '방장이 나갔거나 연결이 오래 끊겼어요. 방장에게 새 방을 만들어 달라고 하거나, 컴퓨터와 계속해 보세요.'), h('button', { class: 'btn btn-primary', type: 'button', style: 'width:100%;margin-top:12px', onclick: () => showTitle() }, '처음으로')); }
+  function roomClosed() { try { ON.room && ON.room.leave(); } catch (e) { } ON.room = null; ON.st = null; history.replaceState(null, '', location.pathname); U.closed({ app, onHome: () => showTitle() }); }
   function afterJoin() {
     try { history.replaceState(null, '', '?room=' + ON.room.code); } catch (e) { }
     ON.room.presence({ name: cleanName(S.nick, '플레이어'), joinedAt: Date.now(), host: ON.isHost || null });
@@ -127,19 +95,11 @@
   }
   function lobbyView() {
     if (ON.st) return;
-    const ms = members().slice(0, 6); const maxBots = Math.max(0, 6 - ms.length); ON.bots = Math.min(ON.bots, maxBots); const total = ms.length + ON.bots;
-    const invite = h('button', { class: 'btn btn-primary', type: 'button', onclick: async e => { const b = e.currentTarget; const url = location.origin + location.pathname + '?room=' + ON.room.code; const text = `속셈 같이 해요. 방 코드 ${ON.room.code}`; if (navigator.share) { try { await navigator.share({ title: '속셈', text, url }); return; } catch (er) { if (er && er.name === 'AbortError') return; } } try { await navigator.clipboard.writeText(url); b.textContent = '링크를 복사했어요'; setTimeout(() => b.textContent = '초대 링크 보내기', 2000); } catch (er) { b.textContent = url; } } }, '초대 링크 보내기');
-    sheetOnly(
-      h('div', { class: 'roomcode' }, h('span', null, '방 코드'), h('b', null, ON.room.code)),
-      h('div', { class: 'row', style: 'margin:10px 0 16px' }, invite),
-      h('h2', { style: 'margin:0' }, `참가자 ${ms.length}명`),
-      h('div', { class: 'players' }, ms.map(p => h('div', { class: 'p' }, cleanName((p.presence || {}).name, '플레이어'), p.sameTab ? h('span', { class: 'pill' }, '나') : null, (p.presence || {}).host ? h('span', { class: 'pill' }, '방장') : null))),
-      ON.isHost ? h('div', { class: 'field' }, h('label', null, '컴퓨터'), h('div', { class: 'stepper' },
-        h('button', { type: 'button', 'aria-label': '줄이기', onclick: () => { ON.bots = Math.max(0, ON.bots - 1); lobbyView(); } }, '−'), h('b', null, ON.bots + '명'),
-        h('button', { type: 'button', 'aria-label': '늘리기', onclick: () => { ON.bots = Math.min(maxBots, ON.bots + 1); lobbyView(); } }, '+'))) : null,
-      ON.isHost ? h('div', { class: 'field' }, h('label', null, '속도'), speedSeg()) : null,
-      ON.isHost ? h('button', { class: 'btn btn-brass btn-big', type: 'button', style: 'width:100%', disabled: total < 3, onclick: () => hostStart(ms) }, total < 3 ? '사람과 컴퓨터를 합쳐 3명부터 할 수 있어요' : `${total}명으로 시작하기`) : h('p', { class: 'fine' }, '방장이 시작하면 바로 카드가 깔려요.'),
-      h('button', { class: 'btn-text', type: 'button', onclick: () => { history.replaceState(null, '', location.pathname); showTitle(); } }, '방 나가기'));
+    const ms = members().slice(0, 6); const maxBots = Math.max(0, 6 - ms.length); ON.bots = Math.min(ON.bots, maxBots);
+    U.lobby({ app, code: ON.room.code, title: '속셈', shareText: `속셈 같이 해요. 방 코드 ${ON.room.code}`, min: 3, max: 6, isHost: ON.isHost, bots: ON.bots, maxBots,
+      people: ms.map(p => ({ name: cleanName((p.presence || {}).name, '플레이어'), me: p.sameTab, host: (p.presence || {}).host })),
+      onBots: n => { ON.bots = n; lobbyView(); }, settings: [speedSeg()], onStart: () => hostStart(ms),
+      onLeave: () => { history.replaceState(null, '', location.pathname); showTitle(); } });
   }
   function startSolo(nBots) {
     leaveRoom(); ON.solo = true; ON.isHost = true;
@@ -260,14 +220,10 @@
     if (e.type === 'own' || e.type === 'steal') { const r = document.querySelector('.ring'); if (r) { r.classList.remove('go'); void r.offsetWidth; r.classList.add('go'); } }
   }
   function ring(t) { const st = ON.st; if (!st || st.phase !== 'play' || st.locked) return; sfx('tap'); toHost({ k: 'h:ring', t, v: st.v }); }
-  function topBar(st) {
-    return h('div', { class: 'top' }, brand(), h('span', { class: 'tools' },
-      h('button', { class: 'ib', type: 'button', 'aria-label': '규칙', onclick: openRules, html: IC.help }),
-      h('button', { class: 'ib', type: 'button', 'aria-label': '소리 켜고 끄기', onclick: e => { const on = !window.NoliSFX.on(); window.NoliSFX.set(on); e.currentTarget.innerHTML = on ? IC.on : IC.off; }, html: window.NoliSFX && window.NoliSFX.on() ? IC.on : IC.off }),
-      h('button', { class: 'ib', type: 'button', 'aria-label': '나가기', onclick: () => { if (st.phase === 'over' || window.confirm('게임에서 나갈까요?')) { history.replaceState(null, '', location.pathname); showTitle(); } }, html: IC.exit })));
-  }
+  function topBar(st) { return U.topbar({ onRules: openRules, sound: true, onExit: () => { if (st.phase === 'over' || window.confirm('게임에서 나갈까요?')) { history.replaceState(null, '', location.pathname); showTitle(); } } }); }
   function render(prev) {
     const st = ON.st; const me = st.me;
+    U.setTable(st.phase !== 'over');
     app.innerHTML = '';
     if (st.phase === 'over') { app.append(topBar(st), finaleEl(st)); return; }
     const play = st.phase === 'play';
@@ -302,18 +258,16 @@
     const ranked = st.players.map((p, i) => ({ p, i })).sort((a, b) => b.p.pts - a.p.pts || b.p.steal - a.p.steal);
     const me = st.me; const P = st.players[me];
     const condChip = (k, gone) => { const C = COND[k]; return h('span', { class: gone ? 'gone' : null, html: (C.t === 'c' ? shapeSVG(C.c) : '') }, condText(k)); };
-    return h('div', { class: 'sheet finale' },
-      h('div', { class: 'crown', 'aria-hidden': 'true', html: BELL }),
-      h('h2', null, st.winner === me ? '속셈 읽기 1등!' : `${josa(st.players[st.winner].name, '이', '가')} 이겼어요`),
-      h('p', { class: 'lead' }, '모두의 속셈을 공개해요. 줄 그어진 건 들킨 속셈이에요.'),
-      h('div', { class: 'ranks' }, ranked.map((r, n) => h('div', { class: 'rank' + (n === 0 ? ' first' : '') },
-        h('span', { class: 'pl' }, n + 1), avEl(st, r.i, true),
+    return h('div', { class: 'sheet' },
+      h('div', { class: 'result-head' }, h('small', null, '게임 끝'), h('h2', null, st.winner === me ? '내가 이겼어요' : `${josa(st.players[st.winner].name, '이', '가')} 이겼어요`), h('p', null, '모두의 속셈을 공개해요. 줄 그어진 건 들킨 속셈이에요.')),
+      h('ol', { class: 'standings' }, ranked.map((r, n) => h('li', { class: n === 0 ? 'first' : null },
+        h('span', { class: 'pl' }, n + 1), U.avatar(r.p.name, r.i),
         h('span', { class: 'who' }, h('b', null, r.i === me ? `${r.p.name} (나)` : r.p.name), h('span', { class: 'conds' }, r.p.past.map(k => condChip(k, true)), condChip(r.p.cond))),
         h('span', { class: 'tot' }, r.p.pts)))),
-      P ? h('div', { class: 'stats' }, h('div', null, h('b', null, P.own), h('span', null, '내 조건으로 땡')), h('div', null, h('b', null, P.steal), h('span', null, '가로채기')), h('div', null, h('b', null, P.wrong), h('span', null, '잘못 친 횟수'))) : null,
-      h('div', { class: 'row', style: 'margin-top:18px' },
-        ON.isHost ? h('button', { class: 'btn btn-brass btn-big', type: 'button', onclick: () => toHost({ k: 'h:again' }) }, '한 판 더') : h('p', { class: 'fine' }, '방장이 한 판 더 누르면 이어서 해요.'),
-        h('button', { class: 'btn btn-big', type: 'button', style: 'box-shadow:none', onclick: () => { history.replaceState(null, '', location.pathname); showTitle(); } }, '처음으로')));
+      P ? h('div', { class: 'kpis' }, h('div', null, h('b', null, P.own), h('span', null, '내 조건으로 땡')), h('div', null, h('b', null, P.steal), h('span', null, '가로채기')), h('div', null, h('b', null, P.wrong), h('span', null, '잘못 친 횟수'))) : null,
+      h('div', { class: 'row', style: 'margin-top:20px' },
+        h('button', { class: 'btn', type: 'button', onclick: () => { history.replaceState(null, '', location.pathname); showTitle(); } }, '처음 화면'),
+        ON.isHost ? h('button', { class: 'btn btn-primary', type: 'button', onclick: () => toHost({ k: 'h:again' }) }, '한 판 더') : h('p', { class: 'fine', style: 'align-self:center' }, '방장이 한 판 더를 누르면 이어져요.')));
   }
 
   const room = (new URLSearchParams(location.search).get('room') || '').replace(/\D/g, '').slice(0, 4);

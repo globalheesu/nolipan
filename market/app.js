@@ -29,39 +29,20 @@
   // ============================================================
   // MENU
   // ============================================================
-  function brand() { return h('a', { class: 'brand', href: '../', 'aria-label': '놀이판 홈' }, h('span', { class: 'brand-mark', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')), '놀이판'); }
-  function sheet(...kids) { app.innerHTML = ''; app.append(h('div', { class: 'sheet' }, ...kids)); window.scrollTo(0, 0); }
-  function speedSeg() {
-    const wrap = h('div', { class: 'seg', role: 'radiogroup', 'aria-label': '속도' });
-    const draw = () => { wrap.innerHTML = ''; Object.entries(SPEEDS).forEach(([k, v]) => wrap.append(h('button', { type: 'button', role: 'radio', 'aria-checked': S.speed === k ? 'true' : 'false', class: S.speed === k ? 'on' : null, onclick: () => { S.speed = k; save(); draw(); } }, v.label))); };
-    draw(); return wrap;
-  }
+  const U = window.NoliUI;
+  const COVER = `<svg viewBox="0 0 320 188"><ellipse cx="160" cy="176" rx="118" ry="8" fill="rgba(0,0,0,.22)"/>
+    <g transform="translate(88 96) rotate(-7)"><rect x="-36" y="-50" width="72" height="100" rx="10" fill="#E0663F"/><text x="-26" y="-32" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="700" font-size="11" fill="rgba(255,255,255,.85)">빨강</text><text x="0" y="18" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="46" letter-spacing="-2" fill="#fff">5</text></g>
+    <g transform="translate(168 98) rotate(4)"><rect x="-36" y="-50" width="72" height="100" rx="10" fill="#F4EFE4"/><rect x="-36" y="-50" width="72" height="100" rx="10" fill="none" stroke="#CFC6B3" stroke-dasharray="5 4" stroke-width="1.5"/><text x="0" y="16" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="42" fill="#B4AA96">?</text><circle cx="22" cy="34" r="10" fill="#B5473A"/></g>
+    <g transform="translate(250 72) rotate(8)"><path d="M-30 -24 H24 a8 8 0 0 1 8 8 V24 a8 8 0 0 1 -8 8 H-30 a8 8 0 0 1 -8 -8 V-16 a8 8 0 0 1 8 -8 Z" fill="#E8B43A"/><circle cx="-28" cy="-14" r="3.2" fill="#232845"/><text x="0" y="16" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="34" letter-spacing="-1" fill="#1A1C20">9</text></g>
+    <g fill="none" stroke="rgba(244,244,240,.5)" stroke-width="2" stroke-linecap="round"><path d="M250 118 v28"/><path d="M243 139 l7 7 7-7"/></g></svg>`;
+  function speedSeg() { return U.field('속도', U.seg(Object.entries(SPEEDS).map(([k, v]) => [k, v.label]), S.speed, k => { S.speed = k; save(); }, '속도'), h('p', { class: 'hint' }, '가격이 떨어지는 빠르기와 컴퓨터의 반응이 함께 달라져요.')); }
   function showTitle(prefill) {
     leaveRoom();
-    const nick = h('input', { id: 'nick', type: 'text', maxlength: '8', value: S.nick || '', placeholder: '닉네임', autocomplete: 'nickname', oninput: e => { S.nick = e.target.value; save(); } });
-    const code = h('input', { id: 'code', type: 'text', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '4', placeholder: '0000', value: prefill || '' });
-    const msg = h('p', { class: 'msg', role: 'alert' });
-    const ok = window.NoliNet && window.NoliNet.available();
-    const busy = (b, on, l) => { b.disabled = on; if (on) { b.dataset.l = b.textContent; b.textContent = l; } else if (b.dataset.l) b.textContent = b.dataset.l; };
-    const needNick = () => { if (!cleanName(S.nick, '')) { msg.textContent = '닉네임을 입력하세요.'; nick.focus(); return true; } return false; };
-    const fail = er => er && er.type === 'not-found' ? '방을 찾을 수 없어요. 코드를 다시 확인해 주세요.' : er && er.type === 'timeout' ? '방은 찾았는데 연결이 안 됐어요. 방장 화면이 켜져 있는지 확인하고, 두 폰을 같은 와이파이에 연결하면 대부분 바로 돼요.' : '연결하지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.';
-    const create = h('button', { class: 'btn', type: 'button', disabled: !ok, onclick: async e => { if (needNick()) return; const b = e.currentTarget; busy(b, true, '만드는 중'); try { ON.room = await window.NoliNet.create('mk', CODE_LO, CODE_HI); ON.isHost = true; afterJoin(); } catch (er) { busy(b, false); msg.textContent = '방을 만들지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.'; } } }, '친구랑 방 만들기');
-    const join = h('button', { class: 'btn', type: 'button', disabled: !ok, onclick: async e => { if (needNick()) return; const c = code.value.replace(/\D/g, ''); if (c.length !== 4) { msg.textContent = '4자리 방 코드를 입력하세요.'; code.focus(); return; } const b = e.currentTarget; busy(b, true, '연결 중'); try { ON.room = await window.NoliNet.join('mk', c); ON.isHost = false; afterJoin(); } catch (er) { busy(b, false); msg.textContent = fail(er); } } }, '참가하기');
-    code.addEventListener('keydown', e => { if (e.key === 'Enter') join.click(); });
-    sheet(brand(),
-      h('div', { class: 'logo' }, h('div', { class: 'tagmark', 'aria-hidden': 'true' }, '?'), h('h1', null, '깜깜이 시장')),
-      h('p', { class: 'tag' }, '내 물건 값만 나만 몰라요. 가격은 계속 떨어지고, 먼저 치는 사람이 임자예요.'),
-      h('div', { class: 'chips' }, h('span', null, '3–5명'), h('span', null, '10–20분'), h('span', null, '컴퓨터와 연습')),
-      prefill ? null : rulesList(),
-      h('div', { class: 'field' }, h('label', { for: 'nick' }, '닉네임'), nick),
-      h('div', { class: 'field' }, h('label', null, '속도'), speedSeg()),
-      prefill ? null : h('div', { class: 'row' }, h('button', { class: 'btn btn-primary', type: 'button', onclick: () => { if (needNick()) return; startSolo(3); } }, '컴퓨터 3명과 하기')),
-      prefill ? null : h('div', { class: 'row', style: 'margin-top:8px' }, create),
-      prefill ? null : h('hr'),
-      h('div', { class: 'field' }, h('label', { for: 'code' }, prefill ? '초대받은 방' : '방 코드로 참가'), h('div', { class: 'row' }, code, join)),
-      msg,
-      prefill ? h('button', { class: 'btn-text', type: 'button', onclick: () => { history.replaceState(null, '', location.pathname); showTitle(); } }, '처음으로') : null);
-    if (prefill) (S.nick ? join : nick).focus();
+    U.entry({ app, name: '깜깜이 시장', pitch: '내 물건 값만 나만 몰라요. 가격은 계속 떨어지고, 먼저 치는 사람이 임자예요.',
+      meta: [['people', '3–5명'], ['clock', '10–20분'], ['brain', '눈치와 흥정']], art: COVER,
+      getNick: () => S.nick, setNick: v => { S.nick = v; save(); }, settings: [speedSeg()], soloLabel: '컴퓨터 3명과 시작', onSolo: () => startSolo(3),
+      net: { id: 'mk', lo: CODE_LO, hi: CODE_HI }, onRoom: (room, host) => { ON.room = room; ON.isHost = host; afterJoin(); },
+      onRules: openRules, prefill, onHome: () => { history.replaceState(null, '', location.pathname); showTitle(); } });
   }
 
   function rulesList() {
@@ -71,12 +52,7 @@
       h('li', null, h('div', null, h('b', null, '가격이 떨어지면 먼저 치세요'), h('span', null, '먼저 친 사람이 그 값에 사요. 파는 사람도 쳐서 자기가 가질 수 있어요. 0까지 아무도 안 사면 파는 사람이 공짜로 가져요.'))),
       h('li', null, h('div', null, h('b', null, '같은 색을 모으면 보너스'), h('span', null, `한 사람이 ${ROUNDS}번씩 팔면 끝나요. 코인 + 물건 값 + 색 보너스(같은 색 2장 +2, 3장 +5, 4장 +9, 5장 +14)가 제일 높은 사람이 이겨요.`))));
   }
-  function openRules() {
-    const m = h('div', { class: 'modal', onclick: e => { if (e.target === m) m.remove(); } },
-      h('div', { class: 'sheet', role: 'dialog', 'aria-label': '규칙' }, h('h3', { style: 'margin:0 0 12px;font-size:20px' }, '깜깜이 시장 규칙'), rulesList(),
-        h('div', { class: 'row' }, h('button', { class: 'btn', type: 'button', onclick: () => { S.tips = !tipsOn(); save(); m.remove(); if (ON.st) render(); } }, tipsOn() ? '도움말 끄기' : '도움말 다시 보기'), h('button', { class: 'btn btn-primary', type: 'button', onclick: () => m.remove() }, '닫기'))));
-    document.body.append(m);
-  }
+  function openRules() { U.rulesSheet({ title: '깜깜이 시장 규칙', body: rulesList(), tipsOn: tipsOn(), toggleTips: ON.st ? () => { S.tips = !tipsOn(); save(); render(); } : null }); }
   const tipsOn = () => S.tips !== false;
   function tipEl(st) {
     if (!tipsOn() || st.phase === 'over' || st.me < 0) return null;
@@ -84,7 +60,7 @@
     if (st.phase === 'announce') t = seller ? `물건 값은 대략 "봉인 ${st.seal} + 앞면 평균 3.5" 정도예요. 그보다 조금 높게 부르면 무난하고, 훨씬 높게 부르면 허세예요.` : '판매자가 높게 부르면 봉인이 좋을 수도, 허세일 수도 있어요. 시작가를 잘 보세요.';
     else if (st.phase === 'auction') t = seller ? '아무도 안 사면 앞면이 낮다는 신호예요. 너무 싸졌다 싶으면 직접 가져가세요.' : `내 예상 값 = 앞면 ${st.face ? st.face.v : '?'} + 봉인 짐작(보통 3쯤). 가격이 그보다 1~2 아래로 내려오면 치세요. 기다리면 남이 먼저 쳐요.`;
     else if (st.phase === 'reveal') t = '산 물건은 색별로 모여요. 같은 색이 많을수록 보너스가 커져요.';
-    return t ? h('div', { class: 'tip', role: 'note' }, h('b', null, '도움말'), ' ', t) : null;
+    return t ? h('div', { class: 'tip', role: 'note' }, h('b', null, '도움말'), h('span', null, t)) : null;
   }
 
   // ============================================================
@@ -103,27 +79,14 @@
     if (!ON.isHost) toHost({ k: 'h:hello' });
     lobbyView();
   }
-  function roomClosed() {
-    try { ON.room && ON.room.leave(); } catch (e) { }
-    ON.room = null; ON.st = null; history.replaceState(null, '', location.pathname);
-    sheet(brand(), h('h2', { style: 'margin:8px 0 6px;font-size:24px' }, '방이 닫혔어요'), h('p', { class: 'tag' }, '방장이 나갔거나 연결이 오래 끊겼어요. 방장에게 새 방을 만들어 달라고 하거나, 컴퓨터와 계속해 보세요.'),
-      h('button', { class: 'btn btn-primary', type: 'button', style: 'width:100%', onclick: () => showTitle() }, '처음으로'));
-  }
+  function roomClosed() { try { ON.room && ON.room.leave(); } catch (e) { } ON.room = null; ON.st = null; history.replaceState(null, '', location.pathname); U.closed({ app, onHome: () => showTitle() }); }
   function lobbyView() {
     if (ON.st) return;
-    const ms = members().slice(0, 5); const maxBots = Math.max(0, 5 - ms.length); ON.bots = Math.min(ON.bots, maxBots); const total = ms.length + ON.bots;
-    const invite = h('button', { class: 'btn btn-primary', type: 'button', onclick: async e => { const b = e.currentTarget; const url = location.origin + location.pathname + '?room=' + ON.room.code; const text = `깜깜이 시장 같이 해요. 방 코드 ${ON.room.code}`; if (navigator.share) { try { await navigator.share({ title: '깜깜이 시장', text, url }); return; } catch (er) { if (er && er.name === 'AbortError') return; } } try { await navigator.clipboard.writeText(url); b.textContent = '링크를 복사했어요'; setTimeout(() => b.textContent = '초대 링크 보내기', 2000); } catch (er) { b.textContent = url; } } }, '초대 링크 보내기');
-    sheet(brand(),
-      h('div', { class: 'roomcode' }, h('span', null, '방 코드'), h('b', null, ON.room.code)),
-      h('div', { class: 'row', style: 'margin:10px 0 16px' }, invite),
-      h('h2', { style: 'margin:0;font-size:18px' }, `참가자 ${ms.length}명`),
-      h('div', { class: 'players' }, ms.map(p => h('div', { class: 'p' }, cleanName((p.presence || {}).name, '플레이어'), p.sameTab ? h('span', { class: 'pill' }, '나') : null, (p.presence || {}).host ? h('span', { class: 'pill' }, '방장') : null))),
-      ON.isHost ? h('div', { class: 'field' }, h('label', null, '컴퓨터 플레이어'), h('div', { class: 'stepper' },
-        h('button', { type: 'button', 'aria-label': '줄이기', onclick: () => { ON.bots = Math.max(0, ON.bots - 1); lobbyView(); } }, '−'), h('b', null, ON.bots + '명'),
-        h('button', { type: 'button', 'aria-label': '늘리기', onclick: () => { ON.bots = Math.min(maxBots, ON.bots + 1); lobbyView(); } }, '+'))) : null,
-      ON.isHost ? h('div', { class: 'field' }, h('label', null, '속도'), speedSeg()) : null,
-      ON.isHost ? h('button', { class: 'btn btn-primary', type: 'button', style: 'width:100%', disabled: total < 3, onclick: () => hostStart(ms) }, total < 3 ? '사람과 컴퓨터를 합쳐 3명부터 할 수 있어요' : `${total}명으로 시작하기`) : h('p', { class: 'fine' }, '방장이 시작하면 바로 게임 화면으로 넘어가요.'),
-      h('button', { class: 'btn-text', type: 'button', onclick: () => { history.replaceState(null, '', location.pathname); showTitle(); } }, '방 나가기'));
+    const ms = members().slice(0, 5); const maxBots = Math.max(0, 5 - ms.length); ON.bots = Math.min(ON.bots, maxBots);
+    U.lobby({ app, code: ON.room.code, title: '깜깜이 시장', shareText: `깜깜이 시장 같이 해요. 방 코드 ${ON.room.code}`, min: 3, max: 5, isHost: ON.isHost, bots: ON.bots, maxBots,
+      people: ms.map(p => ({ name: cleanName((p.presence || {}).name, '플레이어'), me: p.sameTab, host: (p.presence || {}).host })),
+      onBots: n => { ON.bots = n; lobbyView(); }, settings: [speedSeg()], onStart: () => hostStart(ms),
+      onLeave: () => { history.replaceState(null, '', location.pathname); showTitle(); } });
   }
   function startSolo(nBots) {
     leaveRoom(); ON.solo = true; ON.isHost = true;
@@ -262,23 +225,31 @@
     if (d.k === 'poor') { toast('코인이 모자라요.'); sfx('hit'); }
   }
   function render(prev) {
-    const st = ON.st; const me = st.me; const n = st.players.length;
-    const top = h('div', { class: 'top' }, brand(), h('span', { class: 'meta' }, st.solo ? '연습 · 컴퓨터와' : '방 ' + ON.room.code), h('span', null,
-      h('button', { class: 'iconbtn', type: 'button', onclick: e => { const on = !window.NoliSFX.on(); window.NoliSFX.set(on); e.currentTarget.textContent = on ? '소리' : '무음'; } }, window.NoliSFX && window.NoliSFX.on() ? '소리' : '무음'), ' ',
-      h('button', { class: 'iconbtn', type: 'button', onclick: openRules }, '규칙'), ' ',
-      h('button', { class: 'iconbtn', type: 'button', onclick: () => { if (st.phase === 'over' || window.confirm('게임에서 나갈까요?')) { history.replaceState(null, '', location.pathname); showTitle(); } } }, '나가기')));
-    const round = h('p', { class: 'round' }, st.phase === 'over' ? '게임 끝' : `${st.round}/${st.rounds}바퀴 · 경매 ${Math.min(st.sold + 1, st.total)}/${st.total}`);
+    const st = ON.st;
+    const over = st.phase === 'over';
+    U.setTable(!over);
+    const top = U.topbar({ onRules: openRules, sound: true, onExit: () => { if (over || window.confirm('게임에서 나갈까요?')) { history.replaceState(null, '', location.pathname); showTitle(); } } });
     app.innerHTML = '';
-    app.append(...[top, round, tipEl(st), stallEl(st, prev), peopleEl(st)].filter(Boolean), h('p', { class: 'help' }, '점수 = 코인 + 산 물건 값 + 색 보너스(같은 색 2장 +2, 3장 +5, 4장 +9, 5장 +14)'));
+    if (over) { app.append(top, finaleEl(st)); return; }
+    const round = h('div', { class: 'round' }, h('span', null, `${st.round}바퀴째`), h('span', { class: 'bar', 'aria-hidden': 'true' }, h('i', { style: `width:${Math.round(st.sold / st.total * 100)}%` })), h('span', null, `${Math.min(st.sold + 1, st.total)} / ${st.total}`));
+    app.append(...[top, round, stallEl(st, prev), tipEl(st), peopleEl(st)].filter(Boolean), h('p', { class: 'help' }, '점수는 코인, 산 물건 값, 같은 색 보너스(2장 +2, 3장 +5, 4장 +9, 5장 +14)를 더해요.'));
     startTimer();
+  }
+  function finaleEl(st) {
+    const me = st.me;
+    const rows = st.players.map((p, i) => { const items = p.items.reduce((a, it) => a + it.v + it.s, 0); return { p, i, items, bonus: p.score - p.coins - items }; }).sort((a, b) => b.p.score - a.p.score);
+    const P = rows.find(r => r.i === me);
+    return h('div', { class: 'sheet' },
+      h('div', { class: 'result-head' }, h('small', null, '장이 닫혔어요'), h('h2', null, rows[0].i === me ? '내가 이겼어요' : `${rows[0].p.name} 님이 이겼어요`), h('p', null, '점수는 코인, 물건 값, 같은 색 보너스를 더한 값이에요.')),
+      h('ol', { class: 'standings' }, rows.map((r, n) => h('li', { class: n === 0 ? 'first' : null }, h('span', { class: 'pl' }, n + 1), U.avatar(r.p.name, r.i),
+        h('span', { class: 'who' }, h('b', null, r.i === me ? `${r.p.name} (나)` : r.p.name), h('span', null, `코인 ${r.p.coins} · 물건 ${r.items} · 보너스 ${r.bonus}`)), h('span', { class: 'tot' }, r.p.score)))),
+      P ? h('div', { class: 'kpis' }, h('div', null, h('b', null, P.p.coins), h('span', null, '남은 코인')), h('div', null, h('b', null, P.p.items.length), h('span', null, '산 물건')), h('div', null, h('b', null, '+' + P.bonus), h('span', null, '색 보너스'))) : null,
+      h('div', { class: 'row', style: 'margin-top:20px' },
+        h('button', { class: 'btn', type: 'button', onclick: () => { history.replaceState(null, '', location.pathname); showTitle(); } }, '처음 화면'),
+        ON.isHost ? h('button', { class: 'btn btn-primary', type: 'button', onclick: () => toHost({ k: 'h:again' }) }, '한 판 더') : h('p', { class: 'fine', style: 'align-self:center' }, '방장이 한 판 더를 누르면 이어져요.')));
   }
   function stallEl(st, prev) {
     const me = st.me; const seller = st.players[st.seller]; const iAmSeller = me === st.seller;
-    if (st.phase === 'over') {
-      const ranked = st.players.map((p, i) => ({ p, i })).sort((a, b) => b.p.score - a.p.score);
-      return h('div', { class: 'stall winner' }, h('b', null, ranked[0].i === me ? '이겼어요!' : `${ranked[0].p.name} 승리`), h('p', { class: 'sub' }, ranked.map(x => `${x.p.name} ${x.p.score}점`).join(' · ')),
-        ON.isHost ? h('button', { class: 'btn btn-primary', type: 'button', onclick: () => toHost({ k: 'h:again' }) }, '한 판 더') : h('p', { class: 'sub' }, '방장이 한 판 더를 누르면 다시 시작해요.'));
-    }
     const goods = h('div', { class: 'goods' }, st.face ? faceCard(st.face) : unknownCard(), h('span', { class: 'plus', 'aria-hidden': 'true' }, '+'), sealCard(st.seal));
     if (st.phase === 'announce') {
       if (iAmSeller) {
@@ -286,7 +257,7 @@
           h('div', { class: 'nums' }, Array.from({ length: MAX_START - MIN_START + 1 }, (_, i) => MIN_START + i).map(v => h('button', { type: 'button', onclick: () => { sfx('tap'); toHost({ k: 'h:announce', v }); } }, v))),
           h('p', { class: 'fine' }, `시작가가 실제 값보다 ${FINE_SLACK + 1} 이상 높았는데 남이 사 가면, 넘친 만큼 벌금을 내요.`), timerBar());
       }
-      return h('div', { class: 'stall' }, h('h3', null, `${seller.name} 차례 · 시작가 고르는 중`), h('p', { class: 'sub' }, '앞면은 보이죠? 봉인은 판매자만 알아요. 시작가로 봉인을 짐작해 보세요.'), goods, timerBar());
+      return h('div', { class: 'stall' }, h('h3', null, `${seller.name} 님이 시작가를 고르는 중`), h('p', { class: 'sub' }, '앞면은 보이죠? 봉인은 판매자만 알아요. 시작가로 봉인을 짐작해 보세요.'), goods, timerBar());
     }
     if (st.phase === 'auction') {
       const tick = prev && prev.phase === 'auction' && prev.price !== st.price;
@@ -308,7 +279,7 @@
     return h('div', { class: 'ppl' }, st.players.map((p, i) => {
       const cnt = [0, 0, 0, 0]; p.items.forEach(it => cnt[it.c]++);
       return h('div', { class: 'pp' + (i === st.seller && st.phase !== 'over' ? ' sell' : '') },
-        h('div', { class: 'hd' }, h('b', null, i === st.me ? `${p.name} (나)` : p.name), i === st.seller && st.phase !== 'over' ? h('span', { class: 'pill', style: 'background:var(--lamp);color:var(--ink)' }, '판매 중') : null, h('span', { class: 'coin' }, `코인 ${p.coins}`), h('span', { class: 'sc' }, `${p.score}점`)),
+        h('div', { class: 'hd' }, U.avatar(p.name, i, 'sm'), h('b', null, i === st.me ? `${p.name} (나)` : p.name), i === st.seller ? h('span', { class: 'selling' }, '판매 중') : null, h('span', { class: 'coin' }, `코인 ${p.coins}`), h('span', { class: 'sc' }, `${p.score}점`)),
         p.items.length ? h('div', { class: 'col' }, p.items.slice().sort((a, b) => a.c - b.c).map(it => h('div', { class: 'card small', style: 'background:' + COLORS[it.c], 'aria-label': `${CNAMES[it.c]} ${it.v + it.s}` }, h('span', { class: 'v' }, it.v + it.s)))) : h('p', { class: 'empty' }, '아직 산 물건이 없어요'));
     }));
   }

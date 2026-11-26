@@ -29,6 +29,7 @@
       if (k === 'class') el.className = v;
       else if (k === 'style') el.style.cssText = v;
       else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else if (k === 'html') el.innerHTML = v;
       else el.setAttribute(k, v === true ? '' : v);
     }
     for (const kid of kids.flat()) { if (kid == null || kid === false) continue; el.append(kid.nodeType ? kid : document.createTextNode(String(kid))); }
@@ -105,12 +106,20 @@
       const note = st.mode === 'hotseat' ? '차례가 오면 기기를 받아 몰래 그리고 다음 사람에게 넘겨요.' : (st.np === 2 ? '2인 게임에서는 각자 탐험대 2개를 움직여요.' : null);
       if (note) body.push(h('p', { class: 'fine', style: 'margin:14px 0 0' }, note));
     }
-    app.append(h('div', { class: 'title' }, h('div', { class: 'title-sheet' }, brandLink(), logo(),
-      h('p', { class: 'tagline' }, '몰래 그린 길을 한꺼번에 겹쳐요. 부딪힌 칸은 먼저 도착한 사람의 것.'),
-      h('div', { class: 'meta-chips' }, h('span', null, '2–6명'), h('span', null, '15–20분'), h('span', null, '8세 이상')),
-      h('div', { class: 'field' }, h('span', { class: 'lab' }, '플레이 방식'), modeRow), ...body)));
+    menuMode(true);
+    app.append(h('div', { class: 'title' }, topRow(),
+      h('section', { class: 'ov-cover', 'aria-label': 'OVERLAP' }, h('div', { class: 'art', 'aria-hidden': 'true', html: COVER }), h('h1', null, 'OVERLAP'),
+        h('p', { class: 'pitch' }, '몰래 그린 길을 한꺼번에 겹쳐요. 부딪힌 칸은 먼저 도착한 사람의 것.'),
+        h('ul', { class: 'meta' }, [['people', '2–6명'], ['clock', '15–20분'], ['brain', '전략']].map(([ic, t]) => h('li', null, h('span', { html: META_IC[ic] }), t)))),
+      h('div', { class: 'title-sheet' }, h('div', { class: 'field' }, h('span', { class: 'lab' }, '플레이 방식'), modeRow), ...body)));
   }
   function brandLink() { return h('a', { class: 'brand', href: HOME, 'aria-label': '놀이판 홈' }, h('span', { class: 'brand-mark', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')), '놀이판'); }
+  const META_IC = { people: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14.2c2.3.1 4 1.6 4.5 4.3"/></svg>', clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>', brain: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>' };
+  const COVER = (() => { let g = ''; for (let i = 0; i <= 6; i++) g += `<path d="M${100 + i * 20} 34 V154 M100 ${34 + i * 20} H220" stroke="rgba(31,42,68,.12)" stroke-width="1"/>`;
+    return `<svg viewBox="0 0 320 188"><ellipse cx="160" cy="176" rx="100" ry="7" fill="rgba(0,0,0,.2)"/><g transform="rotate(-4 160 94)"><rect x="92" y="26" width="136" height="136" rx="6" fill="#ECF0E6"/><rect x="160" y="34" width="60" height="40" fill="#BFD6DB"/>${g}<path d="M110 144 V104 H150 V64 H190" fill="none" stroke="#2563D9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/><path d="M210 144 V124 H170 V84 H150 V44" fill="none" stroke="#E8761A" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/><circle cx="150" cy="84" r="11" fill="none" stroke="#1F2A44" stroke-width="3"/></g></svg>`; })();
+  const SND_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>', SND_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg>';
+  function menuMode(on) { document.body.classList.toggle('ov-menu', !!on); }
+  function topRow() { return h('div', { class: 'ov-top' }, brandLink(), h('button', { class: 'ov-ib', type: 'button', 'aria-label': '규칙', onclick: showRules, html: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9.2 9a3 3 0 1 1 4.2 2.8c-.9.4-1.4 1.1-1.4 2.1v.4"/><circle cx="12" cy="18" r=".7" fill="currentColor"/></svg>' })); }
   function logo() { return h('div', { class: 'logo', 'aria-label': 'OVERLAP' }, h('span', { class: 'l1', 'aria-hidden': 'true' }, 'OVERLAP'), h('span', { class: 'l2', 'aria-hidden': 'true' }, 'OVERLAP'), h('span', { class: 'l3' }, 'OVERLAP')); }
 
   // ============================================================
@@ -134,6 +143,7 @@
     build(); runPorts();
   }
   function build() {
+    menuMode(false);
     const np = S.seats.length;
     const controllers = S.seats.map(x => x.kind === 'ai' ? { kind: 'ai', strat: x.strat } : { kind: x.kind });
     g = E.newGame({ nPlayers: np, mapDef: mapFor(np, S.cfg.map), seed: S.seed, rules: rulesFor(S.tutorial), controllers });
@@ -148,10 +158,10 @@
     app.innerHTML = '';
     const map = g.map;
     els.round = h('span', { class: 'round' });
-    els.sound = h('button', { class: 'iconbtn', type: 'button', 'aria-pressed': String(NoliSFX.on()), 'aria-label': '소리', onclick: e => { NoliSFX.set(!NoliSFX.on()); e.currentTarget.setAttribute('aria-pressed', String(NoliSFX.on())); e.currentTarget.textContent = NoliSFX.on() ? '소리' : '무음'; } }, NoliSFX.on() ? '소리' : '무음');
+    els.sound = h('button', { class: 'iconbtn', type: 'button', 'aria-pressed': String(NoliSFX.on()), 'aria-label': '소리', onclick: e => { NoliSFX.set(!NoliSFX.on()); e.currentTarget.setAttribute('aria-pressed', String(NoliSFX.on())); e.currentTarget.innerHTML = NoliSFX.on() ? SND_ON : SND_OFF; }, html: NoliSFX.on() ? SND_ON : SND_OFF });
     const top = h('div', { class: 'topbar' }, h('h1', null, 'OVERLAP'), els.round, els.sound,
-      h('button', { class: 'iconbtn', type: 'button', onclick: showRules }, '규칙'),
-      h('button', { class: 'iconbtn', type: 'button', onclick: confirmQuit }, '나가기'));
+      h('button', { class: 'iconbtn', type: 'button', 'aria-label': '규칙', onclick: showRules, html: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9.2 9a3 3 0 1 1 4.2 2.8c-.9.4-1.4 1.1-1.4 2.1v.4"/><circle cx="12" cy="18" r=".7" fill="currentColor"/></svg>' }),
+      h('button', { class: 'iconbtn', type: 'button', 'aria-label': '나가기', onclick: confirmQuit, html: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>' }));
     els.board = h('div', { class: 'board', style: `grid-template-columns:repeat(${map.w},1fr);grid-template-rows:repeat(${map.h},1fr)`, role: 'grid', 'aria-label': '섬 지도' });
     els.cells = [];
     for (let i = 0; i < map.n; i++) {
@@ -615,15 +625,16 @@
   function showOnlineLobby(prefill) {
     S.screen = 'lobby'; leaveTable(); app.innerHTML = '';
     const ok = window.NoliNet && window.NoliNet.available();
-    const nick = h('input', { id: 'nick', type: 'text', maxlength: '10', value: S.settings.nick || '', placeholder: '닉네임', autocomplete: 'nickname', oninput: e => { S.settings.nick = e.target.value; saveSettings(); } });
+    const nick = h('input', { id: 'nick', type: 'text', maxlength: '10', value: S.settings.nick || '', placeholder: '친구들에게 보일 이름', autocomplete: 'nickname', oninput: e => { S.settings.nick = e.target.value; saveSettings(); } });
     const code = h('input', { id: 'code', type: 'text', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '4', placeholder: '0000', value: prefill || '' });
     els.lobbyMsg = h('p', { class: 'formmsg', role: 'alert' });
     const createBtn = h('button', { class: 'btn btn-primary', type: 'button', disabled: !ok, onclick: e => createTable(e.currentTarget) }, '방 만들기');
     const joinBtn = h('button', { class: 'btn btn-ghost', type: 'button', disabled: !ok, onclick: e => { const c = code.value.replace(/\D/g, ''); if (c.length !== 4) { els.lobbyMsg.textContent = '4자리 방 코드를 입력하세요.'; code.focus(); return; } joinTable(c, e.currentTarget); } }, '참가하기');
     code.addEventListener('keydown', e => { if (e.key === 'Enter') joinBtn.click(); });
-    app.append(h('div', { class: 'title' }, h('div', { class: 'title-sheet' }, brandLink(), logo(),
-      h('h2', { class: 'screen-title' }, prefill ? '초대받은 방에 참가해요' : '온라인으로 함께하기'),
-      h('div', { class: 'field' }, h('label', { for: 'nick' }, '닉네임'), nick),
+    menuMode(true);
+    app.append(h('div', { class: 'title' }, topRow(), h('div', { class: 'title-sheet' },
+      h('h2', { class: 'screen-title' }, prefill ? 'OVERLAP에 초대받았어요' : '온라인으로 함께하기'),
+      h('div', { class: 'field' }, h('label', { for: 'nick' }, '내 이름'), nick),
       prefill ? null : h('div', { class: 'block' }, createBtn, h('p', { class: 'fine' }, '방을 만들면 초대 링크를 보낼 수 있어요.')),
       h('div', { class: 'field' }, h('label', { for: 'code' }, '방 코드'), h('div', { class: 'row' }, code, joinBtn)),
       els.lobbyMsg,
@@ -689,8 +700,9 @@
       ctl.push(h('div', { class: 'field' }, h('label', { class: 'toggle', for: 'opt-t2' }, h('input', { id: 'opt-t2', type: 'checkbox', checked: cfg.timer !== false, onchange: e => set({ timer: e.target.checked }) }), '제한 시간')));
       ctl.push(h('div', { class: 'row' }, h('button', { class: 'btn btn-primary', type: 'button', disabled: seats.length < 2 && (cfg.np || 0) < 2, onclick: hostStart }, '게임 시작'), h('button', { class: 'btn btn-text', type: 'button', onclick: () => showOnlineLobby() }, '방 나가기')));
     } else ctl.push(h('p', { class: 'waitline' }, cfg.seats ? '방장이 게임을 시작하면 바로 시작돼요.' : '방장과 연결하는 중이에요.'), h('div', { class: 'row' }, h('button', { class: 'btn btn-text', type: 'button', onclick: () => showOnlineLobby() }, '방 나가기')));
-    app.append(h('div', { class: 'title' }, h('div', { class: 'title-sheet' }, brandLink(),
-      h('div', { class: 'roomcode' }, h('span', null, '방 코드'), h('b', null, net.code)),
+    menuMode(true);
+    app.append(h('div', { class: 'title' }, topRow(), h('div', { class: 'title-sheet' },
+      h('div', { class: 'roomcode' }, h('span', null, 'OVERLAP 방 코드'), h('b', null, net.code)),
       h('div', { class: 'row', style: 'margin-bottom:18px' }, h('button', { class: 'btn btn-primary', type: 'button', onclick: e => shareInvite(e.currentTarget) }, '초대 링크 보내기')),
       h('div', { class: 'field' }, h('span', { class: 'lab' }, `참가자 ${seats.length}명`), list), ...ctl)));
   }

@@ -40,42 +40,21 @@
   // ============================================================
   // MENU
   // ============================================================
-  function brand() { return h('a', { class: 'brand', href: '../', 'aria-label': '놀이판 홈' }, h('span', { class: 'brand-mark', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')), '놀이판'); }
-  function sheet(...kids) { closeModal(); app.innerHTML = ''; app.append(h('div', { class: 'sheet' }, ...kids)); window.scrollTo(0, 0); }
+  const U = window.NoliUI;
+  const COVER = (() => { const c = (x, y, r, body, dark) => `<g transform="translate(${x} ${y}) rotate(${r})"><rect x="-32" y="-45" width="64" height="90" rx="9" fill="${dark ? '#34465A' : '#FBFAF6'}"/>${body}</g>`;
+    const num = (n, col) => `<text x="0" y="14" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="38" letter-spacing="-2" fill="${col}">${n}</text>`;
+    return `<svg viewBox="0 0 320 188"><ellipse cx="160" cy="176" rx="118" ry="8" fill="rgba(0,0,0,.22)"/>${c(90, 92, -9, num(7, '#C8423C') + '<text x="-22" y="-28" font-size="12" fill="#C8423C">♥</text>')}${c(230, 92, 9, num(12, '#25303B') + '<text x="-22" y="-28" font-size="12" fill="#25303B">♠</text>')}${c(160, 82, 0, '<text x="0" y="16" text-anchor="middle" font-family="Georgia, Times New Roman, serif" font-style="italic" font-weight="700" font-size="44" fill="#F4F4F0">x</text>', true)}<g transform="translate(160 146)"><circle r="17" fill="#E8B43A"/><text y="7" text-anchor="middle" font-family="Pretendard Variable, Pretendard, sans-serif" font-weight="800" font-size="19" fill="#1A1C20">2</text></g></svg>`; })();
   function showTitle(prefill) {
     leaveRoom();
-    const nick = h('input', { id: 'nick', type: 'text', maxlength: '8', value: S.nick || '', placeholder: '닉네임', autocomplete: 'nickname', oninput: e => { S.nick = e.target.value; save(); } });
-    const code = h('input', { id: 'code', type: 'text', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '4', placeholder: '0000', value: prefill || '' });
-    const msg = h('p', { class: 'msg', role: 'alert' });
-    const ok = window.NoliNet && window.NoliNet.available();
-    const busy = (b, on, l) => { b.disabled = on; if (on) { b.dataset.l = b.textContent; b.textContent = l; } else if (b.dataset.l) b.textContent = b.dataset.l; };
-    const needNick = () => { if (!cleanName(S.nick, '')) { msg.textContent = '닉네임을 입력하세요.'; nick.focus(); return true; } return false; };
-    const create = h('button', { class: 'btn', type: 'button', disabled: !ok, onclick: async e => { if (needNick()) return; const b = e.currentTarget; busy(b, true, '만드는 중'); try { ON.room = await window.NoliNet.create('im', CODE_LO, CODE_HI); ON.isHost = true; afterJoin(); } catch (er) { busy(b, false); msg.textContent = '방을 만들지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.'; } } }, '친구랑 방 만들기');
-    const join = h('button', { class: 'btn', type: 'button', disabled: !ok, onclick: async e => { if (needNick()) return; const c = code.value.replace(/\D/g, ''); if (c.length !== 4) { msg.textContent = '4자리 방 코드를 입력하세요.'; code.focus(); return; } const b = e.currentTarget; busy(b, true, '연결 중'); try { ON.room = await window.NoliNet.join('im', c); ON.isHost = false; afterJoin(); } catch (er) { busy(b, false); msg.textContent = er && er.type === 'not-found' ? '방을 찾을 수 없어요. 코드를 다시 확인해 주세요.' : (er && er.type === 'timeout' ? '방은 찾았는데 연결이 안 됐어요. 방장 화면이 켜져 있는지 확인하고, 두 폰을 같은 와이파이에 연결하면 대부분 바로 돼요.' : '연결하지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.'); } } }, '참가하기');
-    code.addEventListener('keydown', e => { if (e.key === 'Enter') join.click(); });
-    sheet(brand(),
-      h('div', { class: 'logo' }, h('div', { class: 'mini', 'aria-hidden': 'true' }, 'x'), h('h1', null, '미지수')),
-      h('p', { class: 'tag' }, '남의 숫자는 다 보이는데 내 숫자만 몰라요. 친구들의 답으로 내 숫자를 풀어내고 먼저 외치세요.'),
-      h('div', { class: 'chips' }, h('span', null, '3–5명'), h('span', null, '한 판 10분'), h('span', null, '컴퓨터와 연습')),
-      prefill ? null : rulesList(),
-      h('div', { class: 'field' }, h('label', { for: 'nick' }, '닉네임'), nick),
-      h('div', { class: 'field' }, h('label', null, '속도'), speedSeg(), h('p', { class: 'fine', style: 'margin-top:6px' }, '생각할 시간과 컴퓨터가 외치는 속도가 함께 바뀌어요.')),
-      h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: !!S.expert, onchange: e => { S.expert = e.target.checked; save(); } }), h('span', null, h('b', null, '고수 모드'), ' 지난 질문 기록을 숨겨요. 기억력도 실력이 돼요.')),
-      prefill ? null : h('div', { class: 'row' }, h('button', { class: 'btn btn-primary', type: 'button', onclick: () => { if (needNick()) return; startSolo(3); } }, '컴퓨터 3명과 하기')),
-      prefill ? null : h('div', { class: 'row', style: 'margin-top:8px' }, create),
-      prefill ? null : h('hr'),
-      h('div', { class: 'field' }, h('label', { for: 'code' }, prefill ? '초대받은 방' : '방 코드로 참가'), h('div', { class: 'row' }, code, join)),
-      msg,
-      ok ? null : h('p', { class: 'fine' }, '온라인 기능을 불러오지 못했어요. 컴퓨터와 하기는 그대로 할 수 있어요.'),
-      prefill ? h('button', { class: 'btn-text', type: 'button', onclick: () => { history.replaceState(null, '', location.pathname); showTitle(); } }, '처음으로') : null);
-    if (prefill) (S.nick ? join : nick).focus();
+    U.entry({ app, name: '미지수', pitch: '남의 숫자는 다 보이는데 내 숫자만 몰라요. 친구들의 답으로 내 숫자를 풀어내고 먼저 외치세요.',
+      meta: [['people', '3–5명'], ['clock', '10분'], ['brain', '추리']], art: COVER,
+      getNick: () => S.nick, setNick: v => { S.nick = v; save(); },
+      settings: [speedSeg(), U.switchRow('고수 모드', '지난 질문 기록을 숨겨요. 기억력도 실력이 돼요.', S.expert, v => { S.expert = v; save(); })],
+      soloLabel: '컴퓨터 3명과 시작', onSolo: () => startSolo(3),
+      net: { id: 'im', lo: CODE_LO, hi: CODE_HI }, onRoom: (room, host) => { ON.room = room; ON.isHost = host; afterJoin(); },
+      onRules: openRules, prefill, onHome: () => { history.replaceState(null, '', location.pathname); showTitle(); } });
   }
-
-  function speedSeg() {
-    const wrap = h('div', { class: 'seg', role: 'radiogroup', 'aria-label': '컴퓨터 속도' });
-    const draw = () => { wrap.innerHTML = ''; Object.entries(SPEEDS).forEach(([k, v]) => wrap.append(h('button', { type: 'button', role: 'radio', 'aria-checked': (S.speed || 'fast') === k ? 'true' : 'false', class: (S.speed || 'fast') === k ? 'on' : null, onclick: () => { S.speed = k; save(); draw(); } }, v.label))); };
-    draw(); return wrap;
-  }
+  function speedSeg() { return U.field('속도', U.seg(Object.entries(SPEEDS).map(([k, v]) => [k, v.label]), S.speed || 'fast', k => { S.speed = k; save(); }, '속도'), h('p', { class: 'hint' }, '생각할 시간과 컴퓨터가 외치는 속도가 함께 바뀌어요.')); }
 
   function rulesList() {
     return h('ol', { class: 'rules' },
@@ -86,13 +65,7 @@
   }
   const tipsOn = () => S.tips !== false;
   function josa(w, withB, without) { const c = String(w).charCodeAt(String(w).length - 1); if (c < 0xAC00 || c > 0xD7A3) return w + withB + '(' + without + ')'; return w + (((c - 0xAC00) % 28) ? withB : without); }
-  function openRules() {
-    const m = h('div', { class: 'modal', 'data-keep': '1', onclick: e => { if (e.target === m) m.remove(); } },
-      h('div', { class: 'sheet', role: 'dialog', 'aria-label': '규칙' }, h('h3', { style: 'margin:0 0 12px;font-size:20px' }, '미지수 규칙'), rulesList(),
-        h('p', { class: 'fine', style: 'margin:0 0 14px' }, '같은 숫자는 4장뿐이에요. 남의 카드와 공개된 카드를 세면 후보를 더 빨리 지울 수 있어요.'),
-        h('div', { class: 'row' }, h('button', { class: 'btn', type: 'button', onclick: () => { S.tips = !tipsOn(); save(); m.remove(); if (ON.st) render(); } }, tipsOn() ? '도움말 끄기' : '도움말 다시 보기'), h('button', { class: 'btn btn-primary', type: 'button', onclick: () => m.remove() }, '닫기'))));
-    document.body.append(m);
-  }
+  function openRules() { U.rulesSheet({ title: '미지수 규칙', body: rulesList(), note: '같은 숫자는 4장뿐이에요. 남의 카드와 공개된 카드를 세면 후보를 더 빨리 지울 수 있어요.', tipsOn: tipsOn(), toggleTips: ON.st ? () => { S.tips = !tipsOn(); save(); render(); } : null }); }
   function tipEl(st) {
     if (!tipsOn() || st.phase === 'over' || st.me < 0) return null;
     const me = st.me; let t = '';
@@ -107,7 +80,7 @@
         t = `예시: ${josa(st.players[j].name, '이', '가')} ${a}개를 폈어요. ${josa(st.players[j].name, '과', '와')} 나를 빼고 보이는 해당 카드는 ${seen}장이에요. ${a} − ${seen} = ${d}이니, 내 카드는 "${PROPS[st.q].label.replace('?', '')}"에 ${d === 1 ? '해당해요' : '해당하지 않아요'}. 메모판에서 아닌 숫자를 지워 보세요.`;
       } else t = '후보가 하나만 남으면 "알았다!"를 눌러요. 같은 숫자는 4장뿐이라는 것도 써먹으세요.';
     }
-    return t ? h('div', { class: 'tip', role: 'note' }, h('b', null, '도움말'), ' ', t) : null;
+    return t ? h('div', { class: 'tip', role: 'note' }, h('b', null, '도움말'), h('span', null, t)) : null;
   }
 
   // ============================================================
@@ -126,31 +99,14 @@
     if (!ON.isHost) toHost({ k: 'h:hello' });
     lobbyView();
   }
-  function roomClosed() {
-    try { ON.room && ON.room.leave(); } catch (e) { }
-    ON.room = null; ON.st = null; history.replaceState(null, '', location.pathname);
-    sheet(brand(), h('h2', { style: 'margin:8px 0 6px;font-size:24px' }, '방이 닫혔어요'), h('p', { class: 'tag' }, '방장이 나갔거나 연결이 오래 끊겼어요. 방장에게 새 방을 만들어 달라고 하거나, 컴퓨터와 계속해 보세요.'),
-      h('button', { class: 'btn btn-primary', type: 'button', style: 'width:100%', onclick: () => showTitle() }, '처음으로'));
-  }
+  function roomClosed() { try { ON.room && ON.room.leave(); } catch (e) { } ON.room = null; ON.st = null; history.replaceState(null, '', location.pathname); closeModal(); U.closed({ app, onHome: () => showTitle() }); }
   function lobbyView() {
     if (ON.st && ON.st.phase !== 'lobby') return;
-    const ms = members().slice(0, 5);
-    const maxBots = Math.max(0, 5 - ms.length);
-    ON.bots = Math.min(ON.bots, maxBots);
-    const total = ms.length + ON.bots;
-    const invite = h('button', { class: 'btn btn-primary', type: 'button', onclick: async e => { const b = e.currentTarget; const url = location.origin + location.pathname + '?room=' + ON.room.code; const text = `미지수 같이 해요. 방 코드 ${ON.room.code}`; if (navigator.share) { try { await navigator.share({ title: '미지수', text, url }); return; } catch (er) { if (er && er.name === 'AbortError') return; } } try { await navigator.clipboard.writeText(url); b.textContent = '링크를 복사했어요'; setTimeout(() => b.textContent = '초대 링크 보내기', 2000); } catch (er) { b.textContent = url; } } }, '초대 링크 보내기');
-    sheet(brand(),
-      h('div', { class: 'roomcode' }, h('span', null, '방 코드'), h('b', null, ON.room.code)),
-      h('div', { class: 'row', style: 'margin:10px 0 16px' }, invite),
-      h('h2', { style: 'margin:0;font-size:18px' }, `참가자 ${ms.length}명`),
-      h('div', { class: 'players' }, ms.map(p => h('div', { class: 'p' }, cleanName((p.presence || {}).name, '플레이어'), p.sameTab ? h('span', { class: 'pill' }, '나') : null, (p.presence || {}).host ? h('span', { class: 'pill' }, '방장') : null))),
-      ON.isHost ? h('div', { class: 'field' }, h('label', null, '컴퓨터 플레이어'), h('div', { class: 'stepper' },
-        h('button', { type: 'button', 'aria-label': '줄이기', onclick: () => { ON.bots = Math.max(0, ON.bots - 1); lobbyView(); } }, '−'), h('b', null, ON.bots + '명'),
-        h('button', { type: 'button', 'aria-label': '늘리기', onclick: () => { ON.bots = Math.min(maxBots, ON.bots + 1); lobbyView(); } }, '+'))) : null,
-      ON.isHost ? h('div', { class: 'field' }, h('label', null, '속도'), speedSeg()) : null,
-      ON.isHost ? h('button', { class: 'btn btn-primary', type: 'button', style: 'width:100%', disabled: total < 3, onclick: () => hostStart(ms) }, total < 3 ? '사람과 컴퓨터를 합쳐 3명부터 할 수 있어요' : `${total}명으로 시작하기`)
-        : h('p', { class: 'fine' }, '방장이 시작하면 바로 게임 화면으로 넘어가요.'),
-      h('button', { class: 'btn-text', type: 'button', onclick: () => { history.replaceState(null, '', location.pathname); showTitle(); } }, '방 나가기'));
+    const ms = members().slice(0, 5); const maxBots = Math.max(0, 5 - ms.length); ON.bots = Math.min(ON.bots, maxBots);
+    U.lobby({ app, code: ON.room.code, title: '미지수', shareText: `미지수 같이 해요. 방 코드 ${ON.room.code}`, min: 3, max: 5, isHost: ON.isHost, bots: ON.bots, maxBots,
+      people: ms.map(p => ({ name: cleanName((p.presence || {}).name, '플레이어'), me: p.sameTab, host: (p.presence || {}).host })),
+      onBots: n => { ON.bots = n; lobbyView(); }, settings: [speedSeg()], onStart: () => hostStart(ms),
+      onLeave: () => { history.replaceState(null, '', location.pathname); showTitle(); } });
   }
   function startSolo(nBots) {
     leaveRoom();
@@ -304,31 +260,36 @@
     const st = ON.st; if (!st) return;
     closeModal(false);
     const me = st.me; const n = st.players.length;
-    const top = h('div', { class: 'top' }, brand(), h('span', { class: 'meta' }, st.solo ? '연습 · 컴퓨터와' : '방 ' + ON.room.code), h('span', null,
-      h('button', { class: 'iconbtn', type: 'button', onclick: e => { const on = !window.NoliSFX.on(); window.NoliSFX.set(on); e.currentTarget.textContent = on ? '소리' : '무음'; } }, window.NoliSFX && window.NoliSFX.on() ? '소리' : '무음'), ' ',
-      h('button', { class: 'iconbtn', type: 'button', onclick: openRules }, '규칙'), ' ',
-      h('button', { class: 'iconbtn', type: 'button', onclick: () => { if (confirmLeave()) { history.replaceState(null, '', location.pathname); showTitle(); } } }, '나가기')));
+    const over = st.phase === 'over';
+    U.setTable(!over);
+    const top = U.topbar({ onRules: openRules, sound: true, onExit: () => { if (confirmLeave()) { history.replaceState(null, '', location.pathname); showTitle(); } } });
+    if (over) { app.innerHTML = ''; app.append(top, finaleEl(st)); return; }
     const others = h('div', { class: 'others' }, st.players.map((p, i) => i === me ? null : h('div', { class: 'seat' + (st.cur === i && st.phase !== 'over' ? ' turn' : '') },
-      cardEl(p.card), h('span', { class: 'nm' }, p.name), h('span', { class: 'pts' }, `${p.pts}점`),
+      cardEl(p.card), h('span', { class: 'nm' }, p.name),
       st.phase === 'answer' ? h('span', { class: 'finger wait' }, p.answered ? '✓' : '…') : null,
       st.phase === 'reveal' && p.ans != null ? h('span', { class: 'finger', 'aria-label': `손가락 ${p.ans}개` }, p.ans) : null)));
     const myP = st.players[me] || { name: '관전', pts: 0 };
-    const mine = h('div', { class: 'me' + (st.cur === me ? ' turn' : '') }, cardEl(null), h('div', null, h('h2', null, `${myP.name} · ${myP.pts}/${st.win}점`), h('p', null, '맞히면 새 카드를 받고 게임은 계속돼요.'),
+    const mine = h('div', { class: 'me' + (st.cur === me ? ' turn' : '') }, cardEl(null), h('div', null, h('h2', null, '내 카드'), h('p', null, '나만 못 봐요. 맞히면 새 카드를 받고 계속해요.'),
       st.phase === 'reveal' && st.players[me] && st.players[me].ans != null ? h('p', null, `내가 편 손가락: ${st.players[me].ans}`) : null));
-    const board = h('div', { class: 'board', 'aria-label': '점수' }, h('span', { class: 'goal' }, `${st.win}점 먼저 내면 승리`),
-      st.players.map((p, i) => h('span', { class: 'sc' + (i === me ? ' mine' : '') }, `${i === me ? '나' : p.name} `, h('b', null, p.pts))));
+    const board = h('div', { class: 'board', 'aria-label': `점수. ${st.win}점을 먼저 내면 이겨요` },
+      st.players.map((p, i) => h('span', { class: 'sc' + (i === me ? ' mine' : '') }, U.avatar(p.name, i, 'sm'), h('span', { class: 'nm' }, i === me ? '나' : p.name), h('span', { class: 'pips', 'aria-hidden': 'true' }, Array.from({ length: st.win }, (_, k) => h('i', { class: k < p.pts ? 'on' : null }))), h('b', null, p.pts))));
     app.innerHTML = '';
     app.append(...[top, board, tipEl(st), others, mine, stageEl(st), st.phase !== 'over' && me >= 0 ? h('button', { class: 'call', type: 'button', onclick: openCall }, '알았다! 내 숫자 외치기') : null, notesEl(st)].filter(Boolean));
     startTimerBar();
   }
+  function finaleEl(st) {
+    const me = st.me; const rows = st.players.map((p, i) => ({ p, i })).sort((a, b) => b.p.pts - a.p.pts);
+    return h('div', { class: 'sheet' },
+      h('div', { class: 'result-head' }, h('small', null, '게임 끝'), h('h2', null, st.winner === me ? '내가 이겼어요' : `${st.players[st.winner].name} 님이 이겼어요`), h('p', null, `${st.win}점을 먼저 낸 사람이 이겨요.`)),
+      h('ol', { class: 'standings' }, rows.map((r, n) => h('li', { class: n === 0 ? 'first' : null }, h('span', { class: 'pl' }, n + 1), U.avatar(r.p.name, r.i),
+        h('span', { class: 'who' }, h('b', null, r.i === me ? `${r.p.name} (나)` : r.p.name), r.p.card ? h('span', null, `마지막 카드 ${RANKS[r.p.card.v - 1]}`) : null), h('span', { class: 'tot' }, r.p.pts)))),
+      h('div', { class: 'row', style: 'margin-top:20px' },
+        h('button', { class: 'btn', type: 'button', onclick: () => { history.replaceState(null, '', location.pathname); showTitle(); } }, '처음 화면'),
+        ON.isHost ? h('button', { class: 'btn btn-primary', type: 'button', onclick: () => toHost({ k: 'h:again' }) }, '한 판 더') : h('p', { class: 'fine', style: 'align-self:center' }, '방장이 한 판 더를 누르면 이어져요.')));
+  }
   function confirmLeave() { return !ON.st || ON.st.phase === 'over' || window.confirm('게임에서 나갈까요?'); }
   function stageEl(st) {
     const me = st.me; const n = st.players.length; const curName = st.cur === me ? '내' : st.players[st.cur].name + '의';
-    if (st.phase === 'over') {
-      const w = st.players[st.winner];
-      return h('div', { class: 'stage winner' }, h('b', null, st.winner === me ? '이겼어요!' : `${w.name} 승리`), h('p', { class: 'sub' }, st.players.map(p => `${p.name} ${p.pts}점`).join(' · ')),
-        ON.isHost ? h('button', { class: 'btn btn-primary', type: 'button', onclick: () => toHost({ k: 'h:again' }) }, '한 판 더') : h('p', { class: 'sub' }, '방장이 한 판 더를 누르면 다시 시작해요.'));
-    }
     if (st.phase === 'pick') {
       const myTurn = st.cur === me;
       return h('div', { class: 'stage' }, h('h3', null, myTurn ? '내 차례예요. 질문을 골라요' : `${st.players[st.cur].name} 차례 · 질문 고르는 중`),
@@ -368,9 +329,9 @@
   function openCall() {
     if (!ON.st || ON.st.phase === 'over') return; sfx('tap');
     const m = h('div', { class: 'modal', 'data-keep': '1', onclick: e => { if (e.target === m) m.remove(); } },
-      h('div', { class: 'sheet', role: 'dialog', 'aria-label': '내 숫자 외치기' }, h('h3', { style: 'margin:0 0 4px' }, '내 숫자는?'), h('p', { class: 'fine', style: 'margin:0 0 12px' }, '맞히면 1점, 틀리면 1점을 잃어요.'),
+      h('div', { class: 'sheet', role: 'dialog', 'aria-label': '내 숫자 외치기' }, h('h2', { style: 'margin:0 0 4px' }, '내 숫자는?'), h('p', { class: 'fine', style: 'margin:0 0 16px' }, '맞히면 1점, 틀리면 1점을 잃어요. 메모판에서 지운 숫자는 흐리게 보여요.'),
         h('div', { class: 'ranks' }, RANKS.map((r, i) => h('button', { type: 'button', class: ON.notes.includes(i + 1) ? 'x' : null, onclick: () => { m.remove(); toHost({ k: 'h:call', v: i + 1 }); } }, r))),
-        h('button', { class: 'btn-text', type: 'button', onclick: () => m.remove() }, '취소')));
+        h('button', { class: 'btn', type: 'button', style: 'width:100%;margin-top:16px', onclick: () => m.remove() }, '취소')));
     document.body.append(m);
   }
 
