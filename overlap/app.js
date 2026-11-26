@@ -594,7 +594,7 @@
   // ONLINE (room capability: presence-only, commit–reveal for secrets)
   // ============================================================
   const net = { table: null, code: null, isHost: false, tablePeers: [], myPorts: [], secret: null, plan: {}, commits: {}, started: false, cfg: null };
-  const CODE_LO = 1000, CODE_HI = 2999;
+  const CODE_LO = 1000, CODE_HI = 1999;
   function salt() { const a = new Uint32Array(4); crypto.getRandomValues(a); return Array.from(a, x => x.toString(16).padStart(8, '0')).join(''); }
   function canon(v) { if (Array.isArray(v)) return '[' + v.map(canon).join(',') + ']'; if (v && typeof v === 'object') return '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + canon(v[k])).join(',') + '}'; return JSON.stringify(v === undefined ? null : v); }
   async function hash(obj) {
