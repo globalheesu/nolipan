@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>탁 · 놀이판</title>
+<meta name="description" content="모두 몰래 조준하고, 동시에 탁! 판 밖으로 떨어뜨리는 동시 알까기. 3–6명, 한 판 3분.">
+<meta property="og:title" content="탁 · 놀이판">
+<meta property="og:description" content="모두 몰래 조준하고, 동시에 탁! 동시 알까기.">
+<meta property="og:image" content="../assets/og-tak.png">
+<meta name="theme-color" content="#ECEDE8">
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../shared/ui.css?v=20261128a">
+<style>
+/* 탁 — a kaya-wood board under a lamp on a night-indigo table. The board is the whole screen. */
+:root { --table: #20253A; --table-2: #2A3150; --accent: #F0B54A; }
+body.on-table { background: var(--table) radial-gradient(90% 55% at 50% 42%, var(--table-2), var(--table) 75%); overscroll-behavior: none; }
+body.on-table #app { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+.hud { display: flex; align-items: center; gap: 10px; margin: 0 2px 8px; font-size: 13px; font-weight: 600; color: var(--table-mute); }
+.hud .rd { color: var(--table-ink); font-weight: 700; }
+.hud .tbar { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,.1); overflow: hidden; }
+.hud .tbar i { display: block; height: 100%; background: var(--accent); transform-origin: left; }
+.hud .sec { min-width: 2.4em; text-align: right; font-variant-numeric: tabular-nums; color: var(--table-ink); }
+.roster { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px 6px; padding: 2px 16px 4px; }
+.roster::-webkit-scrollbar { display: none; }
+.pl { flex: none; display: flex; align-items: center; gap: 7px; padding: 6px 10px 6px 6px; border-radius: 999px; background: rgba(255,255,255,.06); font-size: 13px; font-weight: 600; color: var(--table-ink); }
+.pl.me { background: rgba(255,255,255,.12); }
+.pl.out { opacity: .38; }
+.pl .sw { width: 18px; height: 18px; border-radius: 50%; box-shadow: inset 0 -2px 3px rgba(0,0,0,.25), inset 0 2px 2px rgba(255,255,255,.35); }
+.pl .lf { display: flex; gap: 2px; } .pl .lf i { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,.18); } .pl .lf i.on { background: var(--table-ink); }
+.pl .ok { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,.1); display: grid; place-items: center; }
+.pl .ok.on { background: #6FD49A; } .pl .ok.on::after { content: ''; width: 5px; height: 3px; border-left: 1.6px solid #13301F; border-bottom: 1.6px solid #13301F; transform: rotate(-45deg) translate(1px,-1px); }
+.stage { position: relative; margin: 0 -8px; touch-action: none; user-select: none; -webkit-user-select: none; }
+.stage canvas { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; touch-action: none; }
+.banner { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; text-align: center; }
+.banner b { display: block; font-size: 72px; font-weight: 900; letter-spacing: -0.06em; color: #fff; line-height: 1; text-shadow: 0 8px 30px rgba(0,0,0,.45); animation: tak .7s var(--ease) both; }
+.banner small { display: inline-block; margin-top: 10px; background: rgba(12,14,24,.7); color: #fff; font-weight: 600; font-size: 14px; padding: 6px 12px; border-radius: 999px; animation: fadeIn .3s .2s both; }
+@keyframes tak { 0% { transform: scale(1.6); opacity: 0; } 30% { transform: scale(.96); opacity: 1; } 45% { transform: scale(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
+.dock { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; background: var(--surface); color: var(--ink); border-radius: 20px; padding: 12px 12px 12px 16px; margin-top: 8px; min-height: 72px; }
+.dock .tx b { display: block; font-size: 16px; font-weight: 800; letter-spacing: -0.02em; }
+.dock .tx span { display: block; font-size: 13px; color: var(--ink-3); margin-top: 1px; }
+.dock .btn { height: 48px; min-width: 104px; }
+.feed { margin: 10px 2px 0; font-size: 13px; color: var(--table-mute); min-height: 20px; text-align: center; }
+.feed b { color: var(--table-ink); }
+.places { list-style: none; margin: 0; padding: 0; }
+@media (min-width: 720px) { .stage { margin: 0; } }
+</style>
+</head>
+<body>
+<main id="app" aria-live="polite"></main>
+<script src="../vendor/peerjs.min.js?v=20261128a"></script>
+<script src="../shared/net.js?v=20261128a"></script>
+<script src="../shared/sfx.js?v=20261128a"></script>
+<script src="../shared/ui.js?v=20261128a"></script>
+<script src="physics.js?v=20261128a"></script>
+<script src="ai.js?v=20261128a"></script>
+<script src="app.js?v=20261128a"></script>
+<script src="../shared/inapp.js?v=20261128a" defer></script>
+</body>
+</html>
